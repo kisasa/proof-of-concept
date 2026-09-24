@@ -359,6 +359,20 @@ The routing logic, including `spec:awaiting-designer`, is unchanged.
   `shortcut-marking` is its source of truth.
 - **No lane runs it yet.** An architect runs it in their own session.
 
+Amended by 2026-09-24 — W2.
+
+### W2. Conventions say where tests go, with no length cap — proposal
+
+This amends W1, on the owner's direction.
+
+- **Tests section.** The file gains a **Tests** section: where a test goes,
+  how it is named, and the command that runs it. It follows the surface's
+  existing setup, or the stack's usual default if there is none. It is not a
+  requirement to write tests. Tests stay optional on a PoC, because the demo
+  gate is what verifies function. This keeps F9's structure-only scope, since
+  a test's location is structure.
+- **No length cap.** The one-page limit is removed.
+
 ---
 
 ## Open items

@@ -16,10 +16,15 @@ A PoC's conventions cover **structure only**:
 - layering
 - where boundaries sit
 - naming
+- where tests go, if any are written
 - the shortcut-marking rule
 
-Everything a production conventions file adds (testing standards, error
-handling, performance, observability, style) is left out on purpose. The
+Tests are not required on a PoC; the demo gate is what verifies it works. But
+a specialist who does write one should put it where the next one will look.
+
+Everything else a production conventions file adds (test requirements and
+coverage, error handling, performance, observability, style) is left out on
+purpose. The
 point is to keep specialists from inventing a new structure every run, not to
 raise the quality bar. If the PoC graduates, this file is rewritten for full
 development (see `graduation-packaging`).
@@ -75,14 +80,15 @@ question, so the architect can reply "yes" or change one word.
 3. **Naming.** What case and pattern do files, directories, and exported
    symbols use? Where does a new feature's code go? Name the directory a
    specialist should create files in.
-4. **Anything a specialist must never do on this surface.** For example: add
+4. **Tests.** If a specialist writes a test, where does it go, what is it
+   named, and what command runs it? Follow the surface's existing test setup
+   if it has one. If it has none, recommend the stack's usual default rather
+   than inventing one. This says where tests go, not that any are required.
+5. **Anything a specialist must never do on this surface.** For example: add
    a dependency without saying so in the hand-back, or write outside the
    surface's path.
 
 ## The file
-
-Keep it under about a page. Specialists have many things to read; a long
-conventions file gets skimmed.
 
 ```markdown
 # <Surface> conventions (PoC)
@@ -103,6 +109,12 @@ they sit behind.>
 ## Naming
 
 <File, directory, and symbol conventions. Where new feature code goes.>
+
+## Tests
+
+Tests are optional on this PoC; the demo gate verifies it. If you write one:
+
+<Where it goes, how it is named, and the command that runs it.>
 
 ## Shortcuts
 
@@ -130,7 +142,8 @@ Before you ask the architect to confirm, check the draft:
 - Every section is present. An empty **Never** is fine and says "None."
 - Each rule is concrete enough that two specialists would put the same code in
   the same place.
-- Nothing in it is a testing, performance, or style rule.
+- Nothing in it requires tests, and nothing in it is a performance or style
+  rule. Saying where tests go is not a requirement to write them.
 - It agrees with the code already in the repository.
 
 ## Open
