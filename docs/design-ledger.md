@@ -336,6 +336,31 @@ The routing logic, including `spec:awaiting-designer`, is unchanged.
 
 ---
 
+## 2026-09-24 — PoC conventions skill
+
+### W1. Surfaces get conventions through `poc-conventions-writing` — proposal
+
+- **What it is.** A new skill, `skills/poc-conventions-writing`. It writes
+  the structure-only `CONVENTIONS.md` that F9 requires before a surface's
+  first dispatch. The file covers layering, boundaries, naming, and the
+  shortcut rule, and runs to about a page.
+- **Who runs it.** The architect answers in prose and the agent writes the
+  file (F3).
+- **Why the name.** It is named `poc-` so it cannot be confused with ItP's
+  `conventions-writing` where both are installed. That skill writes the full
+  production file, which graduation hands to ItP instead (F11).
+- **Existing code wins.** In a repo that already has code, the skill
+  describes the structure that is there. Conventions that contradict the code
+  lose to it.
+- **Default location.** The file stays at the default `<path>CONVENTIONS.md`,
+  because the dispatcher does not pass the registry's `conventions` path to
+  the specialist (see Open items, "Conventions path").
+- **Shortcuts section.** It is identical on every surface, and
+  `shortcut-marking` is its source of truth.
+- **No lane runs it yet.** An architect runs it in their own session.
+
+---
+
 ## Open items
 
 From `bootstrap.md` Section 8:
@@ -366,6 +391,7 @@ Found during the bootstrap:
   story merges.
 - **Conventions authorship.** Who writes each surface's `CONVENTIONS.md`
   before the first dispatch (F9).
+  Proposed 2026-09-24 — see W1. Still open: whether a lane should run it.
 - **Concurrent shortcut ids.** How shortcut ids avoid collisions when
   specialist runs are concurrent (F7).
 - **BRD-seed format.** How graduation keeps up with ItP's business-requirements

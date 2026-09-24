@@ -104,4 +104,6 @@ handed to full development unchanged at graduation.
 - The hand-off from the brief gate to Specification is a human moving an epic
   to `Evaluation`. Nothing automates it.
 - `CONVENTIONS.md` must exist at each surface root before the first dispatch
-  (Section 3.6), but no agent here writes it yet.
+  (Section 3.6). The architect writes it with the `poc-conventions-writing`
+  skill in their own session. When you propose the `Surfaces` registry,
+  remind them it is needed for each surface.
