@@ -1,0 +1,90 @@
+name: Unit tests
+
+# Runs each package's own typecheck and vitest suite on a pull request.
+#
+# Added 2026-09-19, after a session found no `node_modules` in either package
+# it changed — meaning those suites had never been run in that working copy.
+# Tests that only run when somebody remembers are not a gate, and this
+# repository asks target repos to gate their story PRs on exactly this.
+#
+# Deliberately a separate workflow rather than another job in
+# private-references.yml. That one is dependency-free on purpose — its own
+# comment says it "needs no install step and cannot be broken by a lockfile
+# change... which is what makes the check unskippable" — and bolting four
+# `npm ci` runs onto it would spend precisely the property worth keeping.
+#
+# `infrastructure` is left out for now. Its typecheck needs generated provider
+# bindings, so it wants a synth step ahead of it; adding it here would have
+# meant either a second shape of job or a red gate on day one. It is a gap,
+# not an oversight.
+#
+# The path filter means a docs-only pull request skips this entirely. Worth
+# knowing before making it a required check: a required check that a path
+# filter skips never reports, and the pull request waits forever. Either drop
+# the filter or use a skip-reporting job at that point.
+
+on:
+  pull_request:
+    paths:
+      - "webhook-listener/**"
+      - "dispatch-worker/**"
+      - "specialist-runner/**"
+      - ".github/workflows/unit-tests.yml"
+  push:
+    branches: [main]
+  # On demand from the Actions tab, as the ECR build workflows already offer.
+  # No `ref` input, unlike those: they take one because the image they build
+  # can come from a ref other than the one dispatched. Here the ref you pick
+  # in the UI *is* what gets tested, so an input would only be a second way to
+  # say the same thing. A manual run ignores the path filter above and runs
+  # all three packages, which is the point of having it.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# A second push to the same pull request makes the first run's answer
+# irrelevant — the new head is what merges.
+concurrency:
+  group: unit-tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      # One red package should not hide another's result: a reviewer wants to
+      # see every failure in one pass, not discover them one run at a time.
+      fail-fast: false
+      matrix:
+        package: [webhook-listener, dispatch-worker, specialist-runner]
+
+    name: ${{ matrix.package }}
+    defaults:
+      run:
+        working-directory: ${{ matrix.package }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: ${{ matrix.package }}/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      # dispatch-worker's workflow tests start a real local Temporal test
+      # server, which downloads a dev-server binary on first run. That looked
+      # like the expensive job — a cold local run took around a minute and a
+      # half against nine seconds warm — but measured here it is 25s, against
+      # 18s and 12s for the other two. Cheap, and the only place the dispatch
+      # sequence is checked end to end: those tests execute the real workflow
+      # code against mocked activities.
+      - name: Unit tests
+        run: npm run test:unit

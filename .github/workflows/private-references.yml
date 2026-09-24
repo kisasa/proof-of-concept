@@ -1,0 +1,41 @@
+name: No private references
+
+# Enforces CONTRIBUTING.md's "No Private References" rule: nothing in this repository
+# may reference a private tracker team or issue, a client organization or repo,
+# a person, or a named deployed environment. The rule was violated within an
+# hour of being written down, which is why it is checked here rather than
+# remembered.
+#
+# Gating again as of 2026-08-24. It briefly ran on manual dispatch only, while
+# eight references that were live deployment identity had nowhere to go. What
+# unblocked them was not a better pattern list: cdktf.json left the repository
+# for a committed template, and the resource-name prefix the stacks had
+# hardcoded became a context value, so the deployment's identity now lives in
+# one untracked file and the synthesized output is unchanged.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      # No dependencies: the check reads `git ls-files` and the working tree
+      # with Node built-ins only, so it needs no install step and cannot be
+      # broken by a lockfile change.
+      # The rules' own regression tests. node:test and node:assert are built
+      # into Node, so this stays a dependency-free job — which is what makes
+      # the check unskippable.
+      - name: Test the check's rules
+        run: node --test 'scripts/*.test.mjs'
+
+      - name: Check for private references
+        run: node scripts/check-no-private-references.mjs

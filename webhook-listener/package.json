@@ -1,0 +1,27 @@
+{
+  "name": "webhook-listener",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Webhook listener for the Kisasa AI PM pipeline. Receives tracker events, routes them to the appropriate agent lane, and runs the activation — Claude reads and writes the tracker itself via MCP.",
+  "scripts": {
+    "dev": "node --env-file=.env.development --import tsx --watch src/server.ts",
+    "start": "node --env-file=.env --import tsx src/server.ts",
+    "start:prod": "node --import tsx src/server.ts",
+    "test:unit": "vitest run",
+    "test:unit:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.128.0",
+    "@hono/node-server": "^1.13.7",
+    "@temporalio/client": "^1.21.1",
+    "hono": "^4.6.14"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vitest": "^4.1.9"
+  }
+}

@@ -1,0 +1,11 @@
+# Build context is the repo root (see webhook-listener/Dockerfile) — this
+# file lives here, not under webhook-listener/, because Docker only reads
+# .dockerignore from the context root.
+.git
+.idea
+.claude
+**/node_modules
+**/.env
+**/.env.*
+**/dist
+**/*.log

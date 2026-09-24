@@ -1,0 +1,28 @@
+{
+  "name": "infrastructure",
+  "version": "0.1.0",
+  "private": true,
+  "description": "CDK Terrain (CDKTN) definition of the AWS infrastructure hosting the webhook listener.",
+  "scripts": {
+    "synth": "cdktn get && cdktn synth",
+    "diff": "cdktn diff --skip-synth",
+    "deploy": "cdktn deploy --skip-synth --auto-approve listener network specialist-sandbox temporal-workers",
+    "destroy": "cdktn destroy --skip-synth --auto-approve listener network specialist-sandbox temporal-workers",
+    "list": "cdktn list",
+    "test:unit": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@cdktn/provider-aws": "^24.12.0",
+    "@cdktn/provider-time": "^13.1.0",
+    "cdktn": "^0.23.4",
+    "constructs": "^10.8.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "cdktn-cli": "^0.23.4",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vitest": "^4.1.9"
+  }
+}
