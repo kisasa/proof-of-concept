@@ -18,7 +18,6 @@ dist/
 .env.development
 
 .claude/
-CLAUDE.md
 
 # docker-compose local dev — localstack-bootstrap's generated output
 /local/
