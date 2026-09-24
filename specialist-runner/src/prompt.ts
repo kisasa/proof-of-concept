@@ -2,15 +2,14 @@
  * Builds this run's systemPrompt (the specialist's own definition plus the two
  * skills it declares) and its initial user message (assignment: which story,
  * which surface(s), which branches — everything else the agent fetches itself
- * via MCP, per its own definition). Adapts "The prompt" template from
- * docs/development-tier-dispatch.pdf — generated programmatically here rather
- * than filling `<PLACEHOLDER>` tokens in a static file, since there is exactly
+ * via MCP, per its own definition). Generated programmatically here rather
+ * than by filling `<PLACEHOLDER>` tokens in a static file, since there is exactly
  * one shape of specialist prompt to produce, not one per lane the way the
  * shaping tier's templates are (see prompt-assembly.ts in webhook-listener).
  *
  * One agent file for every surface now (`agents/specialist.md`), not a
  * `specialist-${type}.md` selected by type — the specialist-types-collapse-
- * into-surfaces redesign (docs/design-ledger.md, 2026-08-08) found no
+ * into-surfaces redesign found no
  * genuine type-specific behavior once the four definitions were compared
  * properly. What used to be told by loading a different file is now told in
  * the user message instead: which surface(s) this story is labelled with.
@@ -43,9 +42,8 @@ async function exists(path: string): Promise<boolean> {
  * Where a mandatory surface skill is looked for, in order: the surface
  * repo's own `.claude/skills/<name>/SKILL.md` (a client team's skill, or its
  * override of a framework one), then the framework catalog
- * `skills/<name>/SKILL.md`. Surface repo first so a client can override
- * (docs/design-ledger.md, 2026-08-23, "Resolver order ... surface repo first
- * and framework catalog second"). A mandatory skill that resolves nowhere is
+ * `skills/<name>/SKILL.md`. Surface repo first so a client can override.
+ * A mandatory skill that resolves nowhere is
  * a hard failure before the session starts: "mandatory" means guaranteed
  * read, and a silent skip is exactly the failure discretionary discovery
  * already has.
@@ -112,7 +110,7 @@ Assignment: story ${context.storyId} — "${context.storyTitle}", under epic ${c
 
 Your story carries the label(s) ${surfaceLabels} — that is your surface, or surfaces if more than one is listed (they all resolve to the same repo and ref). ${describePaths(context)} Every write you make goes there and nowhere else. It is checked out on ${context.storyBranch}; the epic branch is ${context.epicBranch}. Both names come from the tracker, and the branch chain was set up before you were dispatched — verify it, do not repair it.
 
-Using the Linear connector, read ${context.storyId}'s description and its full comment thread, then walk up to ${context.epicId} for the parent epic, its resolved API map, and the linked design issue. The comment thread on ${context.storyId} may carry a question-and-answer exchange between the developer who picked this up and the architect from before you were engaged — read it as part of the story, not as commentary on it.
+Using the Linear connector, read ${context.storyId}'s description and its full comment thread, then walk up to ${context.epicId} for the parent epic and its resolved API map, and to the project for its hypothesis brief, layout references, and shortcut ledger. The comment thread on ${context.storyId} may carry a question-and-answer exchange between the developer who picked this up and the architect from before you were engaged — read it as part of the story, not as commentary on it.
 
 Then act per your definition: check blocking dependencies, verify the branch chain, read the codebase and its conventions spec, do the story's work, open the PR into ${context.epicBranch}, and post your completion report on ${context.storyId}.
 

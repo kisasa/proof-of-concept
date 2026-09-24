@@ -19,8 +19,8 @@ to do the work, the skill wins.
   - the story's description and full comment thread
   - its epic
   - the epic's API map
-  - the project's hypothesis brief and layout references (a PoC has no design
-    issue; the layout references stand in for one)
+  - the project's hypothesis brief, its layout references, and the shortcut
+    ledger
 - A local checkout of the surface repository on the story branch, and the
   conventions spec at each surface's `conventions` path.
 - Framework skills: `story-contract`, `epic-writing`.

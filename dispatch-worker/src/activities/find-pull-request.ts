@@ -4,8 +4,7 @@
  * branch" completion-report line (the same class of problem
  * `story-contract.md`/`specification-agent.md` already solved twice by
  * tightening a recording *format*), and not via any outcome label either
- * (removed 2026-08-07 — see `docs/design-ledger.md`; the comment is the
- * only record now). The workflow already knows the exact story/epic branch
+ * (removed 2026-08-07; this comment is the only record of it). The workflow already knows the exact story/epic branch
  * names before it ever dispatches the specialist, so it can just ask GitHub
  * directly.
  *

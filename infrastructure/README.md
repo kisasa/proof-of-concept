@@ -15,6 +15,11 @@ Four stacks, each with its own state file:
 The split follows rate of change: the network never changes, while the other three stacks are re-applied
 every time an image tag moves. All three read the network's outputs through S3 remote state.
 
+**Not in use yet.** This pipeline currently runs locally through the repo-root `docker-compose.yml`, with
+no AWS account (see ["Running locally"](../README.md#running-locally) and `docs/design-ledger.md`,
+"Local-only operation for now"). These stacks are kept, not deployed; everything below describes what
+they would stand up.
+
 ## Specialist sandbox — a task definition, not a service
 
 `specialist-sandbox` registers a Fargate task definition meant for on-demand `ecs:RunTask`, one task per
@@ -45,7 +50,7 @@ in-process shared state to split, so `desired_count` is a plain config value, no
 Namespace traffic reaches Temporal Cloud over **PrivateLink** (an Interface VPC Endpoint plus a private
 Route53 zone for `tmprl.cloud`), not Temporal Cloud's public endpoint — chosen because PrivateLink doesn't
 need a NAT gateway, so it layers onto the existing public-subnet-only `network` stack without reopening
-the no-NAT decision made there, at a modest fixed cost. The pattern is ported from the reference CDKTF project
+the no-NAT decision made there, at a modest fixed cost. The pattern is ported from a reference CDKTF
 project's `CloudPrivateLink`/`NamespaceWithApikey` constructs.
 
 **One deliberate exception to this project's secrets discipline lives here.** Everywhere else, Terraform
@@ -64,9 +69,8 @@ the `SPECIALIST_*` env vars it needs and grants its task role the `ecs:RunTask`/
 `dispatchTarget` config). The trigger exists too, on the app side rather than in this stack:
 `webhook-listener`'s `specialist-dispatch` lane (`src/lanes/specialist-dispatch.ts`, `src/dispatch-
 trigger.ts`) calls `WorkflowClient.start(dispatchStoryWorkflow, ...)` when a story enters `In Progress` —
-see that package's own README. What's still open: neither `specialist-sandbox` nor `temporal-workers` has
-ever had a real image built and deployed — `cdktf.json`'s `image-tag` is still the `REPLACE_ME` placeholder
-for both, since the CI workflows that push a real one only trigger on a merge to `main`.
+see that package's own README. What's still open: no stack has ever been deployed from this repo, and
+the CI workflows that would push a real image only trigger on a push to `main`.
 
 ## Why a Fargate service, and why exactly one task
 
@@ -121,7 +125,7 @@ name already set on the target. For the first deployment, or for a value that ge
 
 ```bash
 PREFIX=/example/prod
-PROFILE=kisasa
+PROFILE=example
 for name in LINEAR_WEBHOOK_SECRET LINEAR_AGENT_API_KEY ANTHROPIC_API_KEY GITHUB_TOKEN; do
   read -rsp "$name: " value; echo
   aws ssm put-parameter --region "us-east-1" --profile "$PROFILE" --name "$PREFIX/$name" --type SecureString --value "$value" --overwrite
@@ -157,10 +161,8 @@ Read directly by the `temporalcloud` provider at synth, not by ARN — the one p
 secret value legitimately reaches Terraform state (see the Temporal workers section above).
 
 It lives **under** the shared `parameter-prefix`, at `${parameter-prefix}temporal-admin/API_KEY`, and
-is issued fresh per deployment like any other credential here. This paragraph previously claimed the
-opposite — that it was one account-level key read from a fixed path regardless of which deployment was
-synthesizing — which `temporal-workers.ts` never did; it has always interpolated the prefix. The
-nesting is the only thing that distinguishes it from the flat names beside it, and that is a grouping,
+is issued fresh per deployment like any other credential here — `temporal-workers.ts` interpolates the
+prefix, it does not read one account-level key from a fixed path. The nesting is the only thing that distinguishes it from the flat names beside it, and that is a grouping,
 not a different lifetime. `scripts/new-deployment.py` treats it accordingly: it is one of the
 credentials the script asks you to type rather than copying across from the previous deployment.
 
@@ -243,13 +245,13 @@ diff away rather than a runtime surprise.
 Every setting comes from the `context` block of that file — read once per stack in the base
 stack's constructor, validated by the factories in [`models/`](models). Nothing reads
 `process.env`, and there are no sensitive Terraform variables, so there is no `secrets.tfvars` to
-manage. Values marked `REPLACE_ME` must be filled in before the first synth.
+manage.
 
 | Key | Example | Notes |
 |---|---|---|
 | `aws.region` | `us-east-1` | |
 | `aws.account-number` | `123456789012` | Also passed as `allowed_account_ids`, so a mis-set profile fails the plan rather than applying to the wrong account. `scripts/new-deployment.py` checks the profile against it the same way before creating anything |
-| `aws.profile` | `kisasa` | |
+| `aws.profile` | `example` | |
 | `state-bucket-name` | `example-terraform-state-001` | |
 | `global-tags` | `{ "terraform": "true", … }` | Applied to everything, plus a per-stack `stack` tag |
 | `domain-name` | `example.com` | |
@@ -270,8 +272,8 @@ manage. Values marked `REPLACE_ME` must be filled in before the first synth.
 | `listener.claude-model-intake`, `.claude-model-specification`, `.claude-model-decompose` | `claude-opus-5-5` (intake, specification) / `claude-sonnet-5` (decompose) | Required — no code-level default. Per-lane model, passed through as `CLAUDE_MODEL_INTAKE`/`_SPECIFICATION`/`_DECOMPOSE`. Tune per engagement without a code change or redeploying the image — just this stack |
 | `listener.claude-effort` | `high` | Required — no code-level default. Uniform across every lane's activation call, passed through as `CLAUDE_EFFORT`. One of `low`/`medium`/`high`/`xhigh`/`max` |
 | `specialist-sandbox.environment-name` | `prod` | Validated independently of `listener.environment-name`, though today they're the same value |
-| `specialist-sandbox.ecr-repository-name` | `proof-of-concept-specialist` | Doesn't exist yet — see Prerequisites |
-| `specialist-sandbox.image-tag` | `REPLACE_ME` | Placeholder until the specialist has a Dockerfile and a CI push target |
+| `specialist-sandbox.ecr-repository-name` | `proof-of-concept-specialist` | Created by its CI workflow, not here — see Prerequisites |
+| `specialist-sandbox.image-tag` | `a1b2c3d4e5f6` | See below |
 | `specialist-sandbox.cpu` / `.memory` | `2048` / `4096` | Task-level Fargate sizing. Raised from the original `1024`/`2048` (1 vCPU, the smallest memory Fargate allows at that CPU tier) — undersized for a real target repo's `npm ci` + build + test run, on top of the Chromium install this image already carries for Playwright (see the Dockerfile's own note). Fargate has no swap: exceeding the memory limit is a hard OOM kill of the whole task, not graceful degradation, and a killed task looks like an unexplained specialist failure with no clear error from the app itself. Raise further (e.g. `4096`/`8192`) if a real engagement's build/test suite is heavier than this |
 | `specialist-sandbox.log-retention-days` | `30` | |
 | `specialist-sandbox.framework-repo` | `example-org/proof-of-concept` | `org/name` on GitHub — where the specialist clones its own `agents/`/`skills/` definitions from. Baked into the task definition's container environment as `FRAMEWORK_REPO`; not part of any per-dispatch `RunTask` override |
@@ -279,39 +281,35 @@ manage. Values marked `REPLACE_ME` must be filled in before the first synth.
 | `specialist-sandbox.claude-model`, `.claude-effort` | `claude-opus-5-5` / `high` | Required — no code-level default. Baked into the task definition's baseline environment as `CLAUDE_MODEL`/`CLAUDE_EFFORT` — every specialist run in this deployment uses it, not just one dispatch |
 | `temporal.environment-name` | `prod` | Validated independently of the other stacks' `environment-name`, though today they're the same value |
 | `temporal.namespace-name` | `proof-of-concept-prod` | Base name — Temporal Cloud appends an account-id suffix to form the fully-qualified namespace id |
-| `temporal.ecr-repository-name` | `proof-of-concept-temporal-worker` | Doesn't exist yet — see Prerequisites |
-| `temporal.image-tag` | `REPLACE_ME` | Placeholder until the worker has a Dockerfile and a CI push target |
+| `temporal.ecr-repository-name` | `proof-of-concept-temporal-worker` | Created by its CI workflow, not here — see Prerequisites |
+| `temporal.image-tag` | `a1b2c3d4e5f6` | See below |
 | `temporal.cpu` / `.memory` | `512` / `1024` | Task-level Fargate sizing |
 | `temporal.desired-count` | `1` | Not a singleton constraint like the listener's — safe to raise once there's real load to justify it |
 | `temporal.log-retention-days` | `30` | |
 
 ### Model choice
 
-The example values are not placeholders — they are what this framework's own
-engagements settled on, and a new deployment can copy them as-is.
+The example values are not placeholders — they are the starting split, and a
+new deployment can copy them as-is.
 
-Opus goes where the judgment is expensive to redo. **Intake** cuts the slice
-map, and a mis-cut propagates into every epic below it; the size band only
-catches that at decomposition, which is a late and expensive place to find
-it. The **specialist** writes the code. **Specification** judges what already
-exists by reading real code — the least contract-bound work in the shaping
-tier, and the judgment that failed on 2026-09-04, when a runtime claim was
-taken from a conventions document with the repository already open and six
-capabilities were mapped on top of it.
+Opus goes where the judgment is expensive to redo. **Intake** writes the
+hypothesis brief and cuts the demo path into claim epics, and a mis-cut
+propagates into every epic below it. The **specialist** writes the code.
+**Specification** judges what already exists by reading real code — the
+least contract-bound work in the shaping tier, where a claim taken from a
+document rather than the repository is the likeliest error.
 
 Sonnet holds up on **Decompose** because it fills a tight output contract —
-`story-contract.md` and `epic-writing.md` specify the shape of a good answer,
-so the model is completing a form rather than deciding what is true.
+the `story-contract` and `epic-writing` skills specify the shape of a good
+answer, so the model is completing a form rather than deciding what is true.
 
 Keeping Decompose on the cheaper model is also deliberate as a comparison
 rather than a saving: at this volume — a handful of activations per epic — the
 per-token difference is under a dollar either way, and the thing actually
-worth measuring is whether the stronger model reduces rework. The API map
-records that directly: design touchpoints resolve to `confirmed` or
-`corrected`, so the correction rate is countable in the threads. Move
-Decompose up when that number says to, not on principle.
+worth measuring is whether the stronger model reduces rework. Move Decompose
+up when the rework says to, not on principle.
 
-The split is per lane precisely so it can be re-tuned per engagement without a
+The split is per lane precisely so it can be re-tuned per deployment without a
 code change or a new image. If a lane starts producing work the architect
 keeps sending back, move that one key up and redeploy this stack.
 
@@ -447,18 +445,18 @@ Honest about what this does not do.
   forgetting to rename back leaves the next run reading the wrong deployment's context. A real fix
   is a wrapper that renames, runs and restores under a trap, or a second directory of stacks.
 - **Specialist-sandbox egress is unrestricted, not allowlisted.** The design calls for locking egress to
-  the Anthropic API, GitHub, Linear, and the gateway-processor test endpoints specifically — but none of
-  those publish IP ranges stable enough for a security-group rule, unlike AWS's own services. Real
+  the Anthropic API, GitHub, and Linear specifically — but none of those publish IP ranges stable enough
+  for a security-group rule, unlike AWS's own services. Real
   enforcement needs a NAT gateway plus a forward proxy, or AWS Network Firewall's domain-name filtering,
   either of which is its own build. Until then, the task's egress is `0.0.0.0/0`, same as the listener's,
   with zero inbound.
 - **Specialist-sandbox secrets are read directly, not through a credential-injection proxy.** The design
-  calls for a proxy outside the sandbox that injects GitHub/Linear/gateway-processor credentials into
-  requests, so the specialist container never holds one directly. That proxy doesn't exist yet — its own
-  design questions (where it runs, how it authenticates a sandbox task, its request-signing story) aren't
-  settled. For now the task reads its own sandbox-scoped SSM parameters directly via its execution role,
-  same mechanism the listener already uses, just under a separate prefix — so a specialist run is never
-  holding a *production* credential, even though it is still holding a raw one.
+  calls for a proxy outside the sandbox that injects GitHub/Linear credentials into requests, so the
+  specialist container never holds one directly. That proxy doesn't exist yet — its own design questions
+  (where it runs, how it authenticates a sandbox task, its request-signing story) aren't settled. For now
+  the task reads its SSM parameters directly via its execution role, same mechanism and same shared
+  `parameter-prefix` the listener uses — so a specialist run holds the same raw credentials the listener
+  does.
 - **Two secret values reach Terraform state in `temporal-workers`, not just an ARN.** The `temporalcloud`
   provider's admin API key (read directly from SSM) and the namespace's generated worker API key (written
   into SSM by this stack, since the provider hands it back as a resource attribute rather than something
@@ -466,8 +464,8 @@ Honest about what this does not do.
   unavoidable, since Terraform provider authentication doesn't support the ARN-indirection ECS container
   secrets use. See the Temporal workers section above.
 - **Temporal worker egress is unrestricted**, same reasoning and same gap as the specialist sandbox's.
-- **Neither `specialist-sandbox` nor `temporal-workers` has ever had a real image deployed.** Both
-  applications, their Dockerfiles, and their CI push workflows all exist now, but those workflows only
-  push on a merge to `main` — until one lands, `cdktf.json`'s `image-tag` for both stacks stays the
-  `REPLACE_ME` placeholder and a `deploy` against either would fail resolving it. See the Temporal
-  workers section above for what's already wired and ready once a real image exists.
+- **No stack has been deployed from this repo.** All three applications, their Dockerfiles, and their CI
+  push workflows exist, but the workflows only push on a push to `main`, and with no AWS credentials
+  configured they fail before pushing anything. Until an image exists in each ECR repository, a `deploy`
+  of `listener`, `specialist-sandbox`, or `temporal-workers` fails resolving it. See the Temporal workers
+  section above for what's already wired and ready once a real image exists.

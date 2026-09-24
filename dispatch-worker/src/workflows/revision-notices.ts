@@ -11,7 +11,7 @@
  *
  * **None of them says what the specialist did.** That is the specialist's own
  * reply in its own words, in the thread the review was left in — the app
- * reports only that a round ran (CLAUDE.md, Layering).
+ * reports only that a round ran.
  */
 
 export function revisionRoundStartedNotice(round: number, cap: number): string {

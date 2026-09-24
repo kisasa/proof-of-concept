@@ -7,10 +7,10 @@
  * — separate npm package, no shared lib between them, matching this repo's
  * existing "each package owns its own small client" pattern.
  *
- * The assignment label is `surface:<name>` — resolving the `specialist:<type>`
- * vs `spec:<type>` conflict design-ledger.md flagged as unresolved, and
- * renamed from `specialist:` after the specialist-types-collapse-into-
- * surfaces redesign (`docs/design-ledger.md`, 2026-08-08). A story may carry
+ * The assignment label is `surface:<name>` — resolving an earlier
+ * `specialist:<type>` vs `spec:<type>` naming conflict, and renamed from
+ * `specialist:` after the specialist-types-collapse-into-surfaces redesign.
+ * A story may carry
  * more than one `surface:` label; this module only extracts the set of
  * names — whether they're all recognized by the epic (and, when there's more
  * than one, whether they all resolve to the same repo and ref) is
@@ -141,8 +141,7 @@ interface StoryContextQueryResult {
  * first point that reads the epic's recorded repo bases. Deduplicates a
  * repeated label and preserves the order labels were applied in, but places
  * no upper bound on count: a story may legitimately carry several surface
- * labels (`docs/design-ledger.md`, 2026-08-08 — "the labels widen what the
- * specialist may write").
+ * labels, which widen what the specialist may write.
  */
 export function parseSurfaces(labels: string[]): { surfaces: Surface[] } | { reason: string } {
   const surfaces: Surface[] = [];

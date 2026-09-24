@@ -27,8 +27,7 @@
  *     token via `authorization_token`, using a PAT (GITHUB_TOKEN) with
  *     Contents: Read; GitHub's remote server may require OAuth instead.
  *
- * Failure handling is fail-fast and narrow, per the design ledger's write-path
- * collapse: three cases post the error comment — (a) the Anthropic call
+ * Failure handling is fail-fast and narrow: three cases post the error comment — (a) the Anthropic call
  * itself throws (timeout, 5xx, network failure, or a stream that dropped with
  * no error frame and no message — the last of these retried up to
  * maxStreamRetries times first, since nothing was produced or written on that

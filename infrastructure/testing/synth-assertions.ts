@@ -1,8 +1,8 @@
 /**
  * Shared assertions for construct-level synth tests — encodes the checks
  * that used to be one-off `node -e` inspections of `cdktn.out/` into real,
- * repeatable tests. See design-ledger.md's "Finishing the wiring" entry for
- * the real bug `assertSafeContainerDefinitions` exists to catch.
+ * repeatable tests. `assertSafeContainerDefinitions` guards a real bug; its
+ * own comment below says which.
  */
 
 import { expect } from "vitest";

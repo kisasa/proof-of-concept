@@ -297,6 +297,45 @@ engine. No AWS account is used.
 
 ---
 
+## 2026-09-24 — ItP debt sweep
+
+### D1. Copied plumbing no longer cites ItP's documents — settled
+
+- **Citations removed.** The copied comments cited ItP's design-ledger entries
+  by date or name, ItP's `CLAUDE.md` sections, ItP's `CONTRIBUTING.md`, and
+  ItP's PDFs. Those citations are gone: 44 exact edits across 29 files, with
+  the reasoning kept wherever it still holds.
+- **References repointed.** References to "No Private References" now point
+  to this repo's `CLAUDE.md`. Local-development pointers now point to the
+  root README's "Running locally" section.
+- **Package READMEs.** The four package READMEs were rewritten against the
+  code. The pass removed ItP branding, ItP history (four specialist types, the
+  BRD branch, engagement readiness), and dead links. It also fixed claims
+  that no longer matched the code, such as the undocumented revision rounds,
+  the `In Progress` literal, and the registry's owner.
+- **What still names ItP.** ItP's name now appears only in `docs/`,
+  `README.md`, `CLAUDE.md`, and the private-reference check. That is where
+  F2 lets this repo know about ItP. No code, config, CI, or agent definition
+  names it.
+
+### D2. Lane prompts and the specialist message describe the PoC flow — proposal
+
+This supersedes nothing; it replaces ItP-flow text the bootstrap left in place
+(B9, "Lane prompt templates" in Open items).
+
+- `prompt-templates/intake.md` reads the hypothesis brief and the `Surfaces`
+  document, not a linked BRD and evidence issue.
+- `specification-kickoff.md` no longer makes missing designer assets the
+  first question, which would have stalled every PoC epic.
+- `specification-reply.md` no longer assumes a designer gate.
+- The specialist's assignment message points to the brief, the layout
+  references, and the shortcut ledger, not to a design issue.
+
+This is prompt text, so it is a proposal until validated against real runs.
+The routing logic, including `spec:awaiting-designer`, is unchanged.
+
+---
+
 ## Open items
 
 From `bootstrap.md` Section 8:
@@ -334,9 +373,11 @@ Found during the bootstrap:
 - **Lane prompt templates.** `webhook-listener/src/prompt-templates/*.md` still
   describe ItP's flow, and the runner's assignment message names a "design
   issue".
+  Resolved 2026-09-24 — see D2.
 - **Dangling references.** 60 comment references in the copied plumbing point
   to ItP documents that do not exist here, and the private-reference check
   points to a `CONTRIBUTING.md` that has not been re-authored.
+  Resolved 2026-09-24 — see D1.
 - **Unverified query.** The Linear `project { teams }` query behind the team
   allowlist is unverified against the live schema.
 - **Infrastructure tests.** They need generated provider bindings
@@ -344,3 +385,7 @@ Found during the bootstrap:
   is not in CI.
 - **Framework ref.** The template's `framework-ref` is `dev`, and this repo
   has no `dev` branch.
+- **Conventions path.** The specialist is not told where a surface's
+  conventions file is. The dispatcher passes the surface directories but
+  not the registry's `conventions` path, so only the default
+  `<path>CONVENTIONS.md` is found without reading the `Surfaces` document.

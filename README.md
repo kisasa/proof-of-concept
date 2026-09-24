@@ -60,6 +60,51 @@ ItP's identity. The agent and skill definitions are unvalidated drafts,
 awaiting real PoC runs. Open items are listed at the end of the design
 ledger.
 
+## Running locally
+
+The whole pipeline runs under Docker Compose, with no AWS account.
+
+| Service | Runs as |
+|---|---|
+| Temporal | A local dev server, with Postgres behind it |
+| ECS (to launch the specialist) | LocalStack |
+| Listener and dispatch worker | Composed services |
+| Linear, GitHub, Anthropic | The real, external services |
+
+1. **Configure.** Copy `docker-compose.override.yml.example` to
+   `docker-compose.override.yml`. The copy is gitignored; never commit it. Fill
+   in:
+   - The Linear webhook secret, the bot user's API key, and `AGENT_USER_ID`.
+   - `TRACKER_ALLOWED_TEAM_IDS`: the PoC Linear team's id. The listener refuses
+     to start without it and ignores every other team.
+   - `GITHUB_TOKEN`, scoped to PoC repositories only, and `ANTHROPIC_API_KEY`.
+   - `LOCALSTACK_AUTH_TOKEN`: LocalStack's image requires a free account token.
+   - Under `localstack-bootstrap`, set `FRAMEWORK_REPO` and `FRAMEWORK_REF` to
+     this repository and the branch to run. The specialist clones `agents/` and
+     `skills/` from GitHub at that ref, so the ref must be pushed.
+2. **Build the specialist image once.** LocalStack launches it; Compose does
+   not:
+
+   ```bash
+   docker build -f specialist-runner/Dockerfile -t specialist-runner:local specialist-runner
+   ```
+
+3. **Start the stack:**
+
+   ```bash
+   docker compose up --build
+   ```
+
+   The Temporal UI is at `http://localhost:8080`.
+4. **Expose the webhook.** Tunnel a public URL (for example with
+   `cloudflared`) to `http://localhost:8787/webhooks/linear`. Register it as a
+   Linear webhook scoped to the PoC team, and put its signing secret in the
+   override file.
+
+`TEST_STAGE=accept` on the listener stops each delivery after it is verified,
+parsed, and allowlisted. Use it to check the webhook path before any agent
+runs.
+
 ## Development
 
 Each package is its own npm project:

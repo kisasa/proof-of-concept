@@ -52,7 +52,7 @@ export abstract class BaseStack extends TerraformStack {
    * Leading segment of every deployment-scoped resource name (ECS clusters and
    * everything the constructs derive from them). Context rather than a literal
    * because it names one deployment, and deployment identity does not belong in
-   * a repository anyone can clone — see CLAUDE.md, "No Private References".
+   * a repository anyone can clone — see CLAUDE.md, "No private references".
    * Changing its value renames resources, which for a cluster means replacing
    * it, so it is set once per deployment and left alone.
    */

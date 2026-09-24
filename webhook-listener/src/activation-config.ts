@@ -63,7 +63,7 @@ export const activationConfig: ActivationConfig = {
   // in addition to, the SDK's non-streaming "must stream past ~10 minutes"
   // guard we already satisfy by streaming. This one applies to streaming
   // requests too and defaults to 10 minutes, which a real activation can
-  // exceed: reading a full BRD plus its evidence and design issue, then
+  // exceed: reading a full brief plus its attachments and layout references, then
   // drafting a slice map at adaptive thinking + high effort, is not a quick
   // call. Observed hitting the default and aborting mid-run ("terminated")
   // on 2026-07-15; raised well past what a thorough run should need.

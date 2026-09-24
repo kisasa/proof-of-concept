@@ -1,9 +1,8 @@
 /**
  * Reviewer-of-record — the property that preserves "the person who reviews
- * decides when it gets written" under app-driven dispatch (CLAUDE.md, Agent
- * Roster). The story's mover is confirmed, live, to be exactly who the
+ * decides when it gets written" under app-driven dispatch. The story's mover is confirmed, live, to be exactly who the
  * webhook's own `actor` names for the status change that dispatched this
- * workflow (docs/design-ledger.md, "reviewer-of-record") — this activity's
+ * workflow — this activity's
  * only job is turning that identity into a GitHub reviewer request on the
  * specialist's PR, once one exists.
  *

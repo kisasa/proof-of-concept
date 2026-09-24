@@ -76,8 +76,8 @@ a gate-logic change, deferred until the trial evidence is written down.
 ## Surface registry format
 
 This is a fenced block tagged `surfaces` in the project document titled
-`Surfaces`. The dispatcher parses it strictly, and it is identical to ItP's
-format so it survives graduation unchanged.
+`Surfaces`. The dispatcher parses it strictly. Do not extend the format: it is
+handed to full development unchanged at graduation.
 
     ```surfaces
     surface: web

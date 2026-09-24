@@ -7,7 +7,7 @@
  * now; "trigger CI" is a no-op here since it already runs automatically on
  * the PR's own push.
  *
- * No outcome label (removed 2026-08-07 — see `docs/design-ledger.md`): a
+ * No outcome label (removed 2026-08-07): a
  * PR's existence *is* the outcome. The specialist's own comment on the story
  * carries the why when there isn't one (waiting on a dependency, blocked,
  * still thinking, crashed) — the workflow itself only needs to know whether

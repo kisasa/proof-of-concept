@@ -1,6 +1,6 @@
 name: No private references
 
-# Enforces CONTRIBUTING.md's "No Private References" rule: nothing in this repository
+# Enforces CLAUDE.md's "No private references" rule: nothing in this repository
 # may reference a private tracker team or issue, a client organization or repo,
 # a person, or a named deployed environment. The rule was violated within an
 # hour of being written down, which is why it is checked here rather than

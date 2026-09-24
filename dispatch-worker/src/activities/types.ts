@@ -2,8 +2,8 @@
  * A surface is a place work happens — a repo, or a project inside one.
  * Same alias as `specialist-runner/src/dispatch-context.ts`'s `Surface`.
  * Was `SpecialistType`, a fixed union of the four specialist types, until
- * the specialist-types-collapse-into-surfaces redesign
- * (`docs/design-ledger.md`, 2026-08-08) opened the vocabulary: a surface is
+ * the specialist-types-collapse-into-surfaces redesign opened the
+ * vocabulary: a surface is
  * whatever this engagement actually has, so it's a plain string rather than
  * an enumerated set. Dispatch mechanics (dependency check, branch creation,
  * repo-base resolution) were already fully generic over it before that —

@@ -19,7 +19,7 @@
  * one. A review submitted during a deploy would be dropped silently, which
  * is the one outcome the development tier's "never silent" rule exists to
  * prevent. A webhook becomes worth building when something needs reacting to
- * *outside* a live workflow — the epic→BRD PR, or CI after a story merges.
+ * *outside* a live workflow — the epic's own PR, or CI after a story merges.
  *
  * **The trigger is an unactioned review, never the review state.** A
  * "changes requested" decision stays on the PR until the same reviewer

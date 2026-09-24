@@ -160,7 +160,7 @@ export class TemporalWorkersStack extends BaseStack {
         { name: "SPECIALIST_SECURITY_GROUP_ID", value: specialistSandbox.securityGroupId },
         // network.publicSubnetIds is a remote-state token list, not a real JS
         // array at synth time — a plain `.join()` call on it is exactly the
-        // Array.join-on-a-token-list failure the design ledger once claimed
+        // Array.join-on-a-token-list failure an earlier design note claimed
         // (then struck as unverified, since nothing in the codebase actually
         // did this yet). This is the first real instance, so it gets the fix
         // that claim originally described: Fn.join, Terraform's own list-join

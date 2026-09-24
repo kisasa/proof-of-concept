@@ -1,13 +1,13 @@
 /**
  * The app's courtesy and failure comments on the pull request — the GitHub
  * half of the small write set `webhook-listener/src/tracker-notifier.ts`
- * already posts to the tracker (CLAUDE.md, Layering: "App (deterministic)").
+ * already posts to the tracker.
  *
  * The reviewer lives in the PR, so that is where they have to be told what
  * the pipeline is doing. A revision round announced only in the tracker is a
  * round the person who asked for it never sees, which is the same
  * surface-mismatch that let an architect's questions sit unanswered above a
- * merge for nine days (docs/design-ledger.md, 2026-09-17).
+ * merge for nine days.
  *
  * **These lines never say what the specialist did.** The app reports that a
  * round ran and how many remain; the specialist posts its own reply, in its

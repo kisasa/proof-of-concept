@@ -14,8 +14,7 @@
  *
  * Reviewer-of-record: `actor` is the webhook's own TrackerActor for this
  * status move — confirmed against live payloads 2026-08-06 that Linear
- * carries it uniformly, including for status_changed (docs/design-ledger.md,
- * "reviewer-of-record"). Passed into the workflow as `mover`; dispatch-worker
+ * carries it uniformly, including for status_changed. Passed into the workflow as `mover`; dispatch-worker
  * resolves it to a GitHub login via its own static mapping and requests them
  * as a reviewer once the specialist's PR is found. `actor` can be null in
  * principle (a malformed or partial webhook) — the workflow input just

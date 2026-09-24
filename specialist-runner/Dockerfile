@@ -1,8 +1,8 @@
 # The specialist runner. Unlike webhook-listener/Dockerfile, this image does
 # NOT bake in agents/ or skills/ — workspace.ts clones the framework repo
 # fresh every run, which is the whole point (a stale baked-in copy would
-# reintroduce exactly the staleness risk the design ledger flags for the
-# manual dispatch workflow). Build context is this directory, self-contained:
+# reintroduce exactly the staleness risk of a manually refreshed framework
+# clone). Build context is this directory, self-contained:
 #   docker build -f specialist-runner/Dockerfile specialist-runner
 FROM node:22-slim
 
@@ -12,8 +12,8 @@ RUN apt-get update \
 
 # Chromium's OS-level shared libraries (libglib-2.0.so.0, libnss3, libatk*,
 # libx11*, etc.) — confirmed missing live (2026-08-07): a specialist
-# tried to sanity-check its own E2E spec locally, per specialist-e2e.md's "if
-# you can stand up and exercise the app locally as you write, do," and
+# tried to sanity-check its own E2E spec locally, standing the app up to
+# exercise it while writing, and
 # chromium/chromium-headless-shell both failed to launch with "error while
 # loading shared libraries." The runtime user (USER node, below) has no
 # install permissions, so this has to happen here, as root, at build time.
@@ -28,10 +28,9 @@ RUN npx --yes playwright@latest install-deps chromium
 
 # --- Toolchains for the non-Node surfaces ------------------------------------
 #
-# The image was Node-only until 2026-09-19, which quietly made one of this
-# agent's own rules unfollowable: the definition says "run the surface's
-# existing tests, not only your own," and the design ledger's isolation
-# decision says "unit tests run in this same sandbox." Neither held on a
+# The image was Node-only until 2026-09-19, which quietly made two of the
+# specialist's expectations unfollowable: run the surface's existing tests,
+# not only its own, and run unit tests in this same sandbox. Neither held on a
 # Python or .NET surface, because neither interpreter was here. Observed on a
 # 2026-09-18 run against a Python surface: the specialist wrote 22 new test
 # cases, could not execute one of them, and reported that CI was the first
@@ -41,8 +40,8 @@ RUN npx --yes playwright@latest install-deps chromium
 #
 # Docker is deliberately still absent and is not coming: Fargate offers no
 # privileged mode and no socket mount, which is why integration and E2E
-# execution live in GitHub Actions (design ledger, "Integration and E2E run in
-# GitHub Actions"). These toolchains close the unit-test gap only.
+# execution live in GitHub Actions. These toolchains close the unit-test gap
+# only.
 
 # curl is a build dependency of the .NET install below, and is kept rather
 # than removed: a surface's own verification steps are commonly written as

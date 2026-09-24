@@ -21,7 +21,7 @@ function requireEnv(name: string): string {
 
 /**
  * Reviewer-of-record's identity mapping: Linear only gives the pipeline a
- * story-mover's email (docs/design-ledger.md, "reviewer-of-record"); GitHub's
+ * story-mover's email; GitHub's
  * requested-reviewers API needs a login. No automatic way to bridge the two
  * reliably exists (an email-search API call would silently miss anyone whose
  * GitHub account doesn't expose a matching public email), so this is a static,

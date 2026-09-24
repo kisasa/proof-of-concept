@@ -1,8 +1,8 @@
 /**
  * Resolves the story's surfaces to one repo, ref, and set of surface records
  * from the surface registry: the epic's `Surfaces (override)` document layered
- * on the project's `Surfaces` document (see surface-registry.ts, and
- * docs/design-ledger.md 2026-09-02). Replaces the per-epic `Repo base —`
+ * on the project's `Surfaces` document (see surface-registry.ts). Replaces
+ * the per-epic `Repo base —`
  * comment parser and its four defensive patches; the registry is agent-
  * written from a confirmed answer, so a malformed record is a bug to report,
  * not a typo to work around.

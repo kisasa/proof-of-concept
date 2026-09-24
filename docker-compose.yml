@@ -1,5 +1,5 @@
-# Local dev stack — see docs/local-development.pdf for the full bring-up
-# walkthrough, the cloudflared tunnel step, and named limitations.
+# Local dev stack — see the root README, "Running locally", for the full
+# bring-up: the override file, the specialist image, and the webhook tunnel.
 #
 # Every env var each service needs is listed explicitly below, right here —
 # one file to see the whole shape, rather than hunting across four scattered

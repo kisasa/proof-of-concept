@@ -2,7 +2,7 @@
 /**
  * Fails if the repository references a private artifact — a tracker team or
  * issue key, a client organization or repository, a person, or a named deployed
- * environment. See CONTRIBUTING.md, "No Private References".
+ * environment. See CLAUDE.md, "No private references".
  *
  * This is a pattern check, not a proof. It catches the shapes this repository
  * has actually leaked. When you find a new one, add a rule here rather than
@@ -85,7 +85,7 @@ const NOT_TRACKER_KEYS = new Set([
   "CVE-2026",
 ]);
 
-/** The approved placeholder issue-key prefix (CONTRIBUTING.md's table). */
+/** The approved placeholder issue-key prefix (CLAUDE.md, "No private references"). */
 const PLACEHOLDER_KEY = /^PROJ-\d+$/;
 
 const RULES = [
@@ -126,7 +126,7 @@ const RULES = [
   {
     /**
      * Bare first names. Added after a scrub that removed every full name and
-     * email still left 68 first-name references in the design ledger — the
+     * email still left 68 first-name references in a design ledger — the
      * named-person rule above matched none of them, because attribution in
      * prose is almost always first-name-only ("the architect's own framing"
      * started life as a first name). Use the role, not the person.
@@ -303,7 +303,7 @@ function main() {
   }
 
   process.stdout.write(
-    `\n${found.length} private reference(s) found. See CONTRIBUTING.md, "No Private References",\n` +
+    `\n${found.length} private reference(s) found. See CLAUDE.md, "No private references",\n` +
       "for the approved placeholders. Keep the observation, drop the anchor.\n",
   );
   process.exit(1);

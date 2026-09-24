@@ -1,6 +1,6 @@
 /**
  * Intake lane. Wakes on `ready for intake` applied to a Backlog project;
- * translates an approved business-requirements document into slice epics.
+ * shapes the PoC's hypothesis brief and cuts its demo path into claim epics.
  * Reasons from the brief, its attachments, and the thread alone — no
  * codebase access.
  */
@@ -8,7 +8,7 @@
 import type { AgentLaneConfig } from "../agent-lane.js";
 import { requireEnv } from "../env.js";
 
-// The two fixed activation-trigger strings from the design ledger. This is
+// The two fixed activation-trigger strings. This is
 // reinforcement, not load-bearing — intake-agent.md's own decision-flow logic
 // already determines ask/checkpoint/slice state from the thread regardless of
 // what this says — but it's cheap and removes ambiguity for the model.

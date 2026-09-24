@@ -53,7 +53,7 @@ Determine your state from the thread every time.
 |---|---|---|---|---|
 | `eval:awaiting-answers` | epic | Decompose | yes, a follow-up trigger | Questions are open |
 | `eval:awaiting-approval` | epic | Decompose | yes, a follow-up trigger | Decomposition proposed and awaiting approval |
-| `surface:<name>` | story | Decompose | yes, dispatch scope and surface resolution | Where the story's work lands; identical to ItP |
+| `surface:<name>` | story | Decompose | yes, dispatch scope and surface resolution | Where the story's work lands; the name is shared with full development at graduation |
 | `tier:small\|mid\|large` | story | Decompose | yes, turn budget | Architectural weight |
 | `size:small\|medium\|large` | story | Decompose | yes, turn budget | Volume of work |
 

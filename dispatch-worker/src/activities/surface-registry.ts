@@ -1,7 +1,6 @@
 /**
- * The surface registry — the machine-read record of where each surface lives
- * (docs/design-ledger.md, 2026-09-02, "The surface registry lives in the
- * project and is overridable in the epic").
+ * The surface registry — the machine-read record of where each surface lives.
+ * It lives in the project and is overridable in the epic.
  *
  * A registry is a Linear document whose content carries one fenced block
  * tagged `surfaces`, holding one record per surface:

@@ -77,7 +77,7 @@ const PATIENCE_QUIPS = [
   "Good things take time — this is one of those things.",
   "Slow is smooth, smooth is fast.",
   "Rome wasn't sliced into epics in a day.",
-  "The tortoise reads the whole BRD before it moves.",
+  "The tortoise reads the whole brief before it moves.",
   "Patience: the art of watching a status comment update itself.",
   "A checkpoint rushed is a checkpoint reopened.",
   "The API map gets read once and drawn once — no shortcuts either way.",

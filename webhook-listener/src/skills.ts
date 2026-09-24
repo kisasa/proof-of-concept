@@ -6,7 +6,7 @@
  * Each skill lives at skills/<name>/SKILL.md — the Claude Skills convention,
  * and now the only copy. This loader used to read a parallel
  * skills/<name>/<name>.md kept in sync by hand; that duplicate is removed
- * (docs/design-ledger.md, 2026-08-23), because two hand-synced copies of the
+ * because two hand-synced copies of the
  * same instructions is a silent-divergence hazard and the mechanism is about
  * to carry per-surface skills as well.
  *

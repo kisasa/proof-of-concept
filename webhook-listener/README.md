@@ -1,11 +1,11 @@
 # webhook-listener
 
-An always-on worker implementing the shaping tier — and, as of the
-specialist-dispatch lane, the entry point into the development tier — of the
-Kisasa AI PM pipeline. See [`../Docs/design-ledger.md`](../Docs/design-ledger.md)
-for the design this code follows, and [`../CLAUDE.md`](../CLAUDE.md) for the
-current architecture summary. It receives Linear webhooks, routes them to the
-lane whose trigger matches, and runs that lane's agent function.
+An always-on worker implementing the shaping tier of this proof-of-concept
+pipeline — brief, claims, and spec — and, through the specialist-dispatch
+lane, the entry point into the build tier. See [`../README.md`](../README.md)
+for how a PoC runs end to end. It receives Linear webhooks, drops any whose
+entity belongs to a tracker team this deployment does not serve, routes the
+rest to the lane whose trigger matches, and runs that lane's agent function.
 
 Three lanes (Intake, Specification, Decompose) run an Anthropic activation:
 Claude reads and writes the tracker itself during the run, and reads the
@@ -18,11 +18,14 @@ a fail-fast error comment on failure (`src/tracker-notifier.ts`).
 
 The fourth lane, specialist-dispatch, calls no Anthropic activation at all —
 it starts a Temporal workflow (`dispatch-worker/`) that dispatches a
-specialist against the specialist-sandbox. See "The lanes and their
-triggers" below.
+specialist container (`specialist-runner/`) for the story. See "The lanes and
+their triggers" below.
 
 ```
 Linear webhook ──▶ adapters/linear.ts   parse the payload into a TrackerEvent
+                         │
+                         ▼
+                 team-allowlist.ts       is the entity's team on TRACKER_ALLOWED_TEAM_IDS?
                          │
                          ▼
                  swim-lane-routing.ts    which lane fires, first pass or follow-up?
@@ -41,6 +44,24 @@ Linear webhook ──▶ adapters/linear.ts   parse the payload into a TrackerEv
                         GitHub   (read-only — Specification and Decompose only)
 ```
 
+## The team allowlist
+
+This pipeline may share a tracker workspace with another pipeline's listener,
+so every parsed event is checked against `TRACKER_ALLOWED_TEAM_IDS` (a
+comma-separated list of tracker team ids) before routing runs
+(`src/team-allowlist.ts`, called from `src/server.ts`). The adapter looks up
+the entity's team(s) (`entityTeamIds`); the event is accepted only if every
+one of them is on the list. The check fails closed:
+
+- The variable is required. The server refuses to start if it is unset or
+  lists no team ids.
+- An entity whose team cannot be resolved is rejected.
+- A project spanning an allowed team and any other team is rejected.
+
+A rejected event is logged at `info` and answered `200` with
+`{"ok": true, "fired": false, "rejected": "team"}`. The check runs before
+`TEST_STAGE=accept` stops, so that rung exercises it too.
+
 ## The lanes and their triggers
 
 Routing matches on **labels and status, not column position** — agents move
@@ -50,9 +71,9 @@ first-pass trigger and the label(s) that mark its thread "awaiting a reply":
 | Lane | Entity | First pass fires on | Follow-up fires on |
 |---|---|---|---|
 | Intake | Project | `ready for intake` applied while status = Backlog | a Project Update ("status update") post while `ready for intake` is present |
-| Specification | Issue (epic) | status enters Evaluation **and no** `spec:*` label exists yet | human comment while `spec:awaiting-architect` or `spec:awaiting-designer` is present |
-| Decompose | Issue (epic) | `spec:resolved` applied | human comment while `eval:awaiting-answers` or `eval:awaiting-approval` is present |
-| specialist-dispatch | Issue (story) | status enters In-Process **and** a `surface:*` label is present | — (no follow-up state; a dispatch either starts or it doesn't) |
+| Specification | Issue (epic) | status enters Evaluation **and no** `spec:*` label exists yet | human comment while `spec:awaiting-architect`, `spec:awaiting-designer`, or `spec:awaiting-answers` is present |
+| Decompose | Issue (epic) | `spec:resolved` applied while status = Evaluation | human comment while `eval:awaiting-answers` or `eval:awaiting-approval` is present |
+| specialist-dispatch | Issue (story) | status enters In Progress **and** a `surface:*` label is present | — (no follow-up state; a dispatch either starts or it doesn't) |
 
 Specification's first-pass trigger is the one case gated on label *absence*
 rather than presence; specialist-dispatch's is the symmetric case gated on
@@ -65,14 +86,19 @@ this is a story, not an epic, entering that status. The self-comment guard
 agent's own label change is exactly how one lane hands off to the next, and
 must never be filtered.
 
-Intake's follow-up is the one case that isn't a comment reply: confirmed
-against a live payload (2026-07-16), Linear does not emit a webhook for
-comments added to a Project — only Issue/Document comments are webhook-
-visible. A Project Update post is the only webhook-visible signal of human
-activity on a project, so `adapters/linear.ts` maps it onto the same
-`comment_added` event kind Specification/Decompose get from real comments.
-This is a webhook-routing workaround only — see "Not yet built" below for
-what it doesn't yet cover.
+The specialist-dispatch status string is Linear's stock name for the
+"started" state, `In Progress`. It is tracker configuration and lives in the
+Linear-specific lane file (`src/lanes/specialist-dispatch.ts`); a workspace
+that renames that state must change it there, or dispatch silently never
+fires.
+
+Intake's follow-up is the one case that isn't a comment reply: Linear does
+not emit a webhook for comments added to a Project — only Issue/Document
+comments are webhook-visible. A Project Update post is the only
+webhook-visible signal of human activity on a project, so
+`adapters/linear.ts` maps it onto the same `comment_added` event kind
+Specification/Decompose get from real comments. `intake-agent.md` reads the
+project's status-update thread accordingly.
 
 ## Run it locally
 
@@ -82,11 +108,11 @@ balancer, with env vars sourced from SSM — see
 
 To run this service alongside `dispatch-worker`, a local Temporal server,
 and a LocalStack-emulated ECS — the whole dispatch loop, not just this one
-service — see [`docs/local-development.pdf`](../docs/local-development.pdf)
-instead. What follows here is this service in isolation.
+service — see ["Running locally"](../README.md#running-locally) in the root
+README instead. What follows here is this service in isolation.
 
 ```bash
-cp .env.example .env   # fill in the required values
+cp .env.example .env   # fill in the required values, including TRACKER_ALLOWED_TEAM_IDS
 npm install
 npm run dev
 ```
@@ -114,8 +140,9 @@ key, `TEST_STAGE` lets you verify one rung at a time, with `LOG_LEVEL=trace`
 on so each rung's decisions are visible:
 
 1. `TEST_STAGE=accept` — POST a webhook payload and confirm it's verified,
-   deduped, and parsed correctly. The response echoes the parsed event; the
-   trace log shows signature check → dedupe → parse. Stops before routing.
+   deduped, parsed, and passes the team allowlist. The response echoes the
+   parsed event; the trace log shows signature check → dedupe → parse → team
+   allowlist. Stops before routing.
 2. *(next rung, not yet wired up)* — stop after the routing decision, before
    dispatch, to confirm the right lane and pass get picked.
 3. *(next rung, not yet wired up)* — stop after an activation's prompt is
@@ -152,7 +179,8 @@ one request's entire path through the system.
 
 | File | Role |
 |---|---|
-| `src/server.ts` | HTTP endpoint: verify signature, dedupe, route, dispatch |
+| `src/server.ts` | HTTP endpoint: verify signature, dedupe, parse, check the team allowlist, route, dispatch |
+| `src/team-allowlist.ts` | Pure: parses `TRACKER_ALLOWED_TEAM_IDS` and decides whether an entity's team(s) are all allowlisted, failing closed |
 | `src/adapters/linear.ts` | The only file that knows Linear's payload shape; produces `TrackerEvent`s |
 | `src/tracker-event.ts` | The tracker-agnostic event contract adapters produce |
 | `src/swim-lane-routing.ts` | Pure function: event + lane registry → fire decision |
@@ -163,13 +191,13 @@ one request's entire path through the system.
 | `src/lanes/specialist-dispatch.ts` | The one lane exporting a plain `LaneConfig` directly (not `AgentLaneConfig`) — its `agent` starts a Temporal workflow, not an activation |
 | `src/dispatch-trigger.ts` | Gathers a story's dispatch context, starts `dispatchStoryWorkflow` on `dispatch-worker`'s task queue, posts an error comment and moves the story back to Todo on a malformed story or a start failure — the workflow never gets a chance to run its own equivalent for either case |
 | `src/story-context.ts` | Reads a story's `branchName`, `surface:<name>` label(s), and parent epic (`id`/`branchName`) from Linear directly — this lane's own small GraphQL client, same pattern as `tracker-notifier.ts`. `parseSurfaces` extracts every `surface:`-prefixed label (a story may carry more than one); the surface vocabulary itself is open, so whether the epic actually recognizes a given surface is `dispatch-worker`'s `resolveRepoBase` to catch, not this parse |
-| `src/move-story-to-todo.ts` | Best-effort: moves a story back to To-Do when `dispatch-trigger.ts` can't proceed, before any workflow starts — mirrors `dispatch-worker/src/activities/move-story-to-todo.ts`, no shared lib between the two packages |
+| `src/move-story-to-todo.ts` | Best-effort: moves a story back to Todo when `dispatch-trigger.ts` can't proceed, before any workflow starts — mirrors `dispatch-worker/src/activities/move-story-to-todo.ts`, no shared lib between the two packages |
 | `src/temporal-client.ts` | This process's `@temporalio/client` connection for *starting* workflows — distinct from `dispatch-worker`'s own `NativeConnection`, which executes them |
 | `src/prompt-assembly.ts` + `src/prompt-templates/*.md` | Template lookup, placeholder substitution, system-block assembly |
 | `src/activation-runner.ts` | Generic runner: assembles the prompt, attaches the Linear MCP server (+ GitHub's for codebase-access lanes), posts + refreshes "working on it", makes the Anthropic call (resuming past a paused server-side MCP tool-call loop, up to `maxPauseContinuations`), error-reports |
 | `src/activation-config.ts` | Shared token/content/timing limits, effort, and the pause-continuation cap |
 | `src/tracker-notifier.ts` | The app's own tracker writes, kept small: post/refresh the "working on it" comment (states when it'll time out, plus a one-line patience quip), and the fail-fast error comment |
-| `src/skills.ts` | Resolves skill names to `skills/<name>/<name>.md` |
+| `src/skills.ts` | Resolves skill names to `skills/<name>/SKILL.md` |
 | `src/logger.ts` | Scoped, leveled logging (`LOG_LEVEL`) — every module logs through this instead of `console.*` directly |
 | `src/trace-id.ts` | Mints the per-delivery correlation id threaded through `Logger.child()` |
 | `src/env.ts` | `envOr(name, fallback)` — treats an env var present but empty (the `.env.example` default shape) the same as unset |
@@ -191,19 +219,3 @@ crash-survival — the function signatures in `agent-scheduler.ts` don't change.
   that's a different role from GitHub Issues as a tracker.)
 - **A local e2e harness** that can exercise Claude's MCP calls, not just the
   webhook-to-dispatch path.
-- **`intake-agent.md` reading Project Updates.** The webhook-routing fix above
-  only gets Intake's follow-up activation to fire — it doesn't change what
-  Claude reads once it runs. `intake-agent.md` currently describes its input
-  as "the project's comment thread" and instructs Claude to post its own
-  checkpoint as a comment; a PM's reply now lands as a Project Update
-  ("status update"), a Linear object comments-reading tools don't surface.
-  Until the agent's own instructions are updated to also read status updates
-  (the Linear MCP server exposes `get_status_updates`), Intake's follow-up
-  pass may run without ever seeing what the PM actually said.
-
-Note: `../Docs/for-pms/` and `../Docs/for-engineers/` describe an earlier,
-CI-Actions-and-channel-adapter-based design (a single "Evaluation Agent," a
-GitHub Actions dispatch model, multi-channel Intake) that predates the
-Intake/Specification/Decompose split this worker implements and was never
-built as described. Treat `../Docs/design-ledger.md` as authoritative over
-those files until they're reconciled.

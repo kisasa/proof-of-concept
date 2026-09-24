@@ -85,7 +85,7 @@ function requireEnv(name: string): string {
 
 /**
  * `SURFACES` is comma-separated because a story may carry more than one
- * `surface:` label (docs/design-ledger.md, 2026-08-08) — all resolving to
+ * `surface:` label — all resolving to
  * this same repo, so this runner still clones exactly one. No supported-list
  * check here: the surface vocabulary is open, and whether the epic actually
  * recognizes a given surface was already validated upstream, by

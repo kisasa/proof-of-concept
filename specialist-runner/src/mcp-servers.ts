@@ -1,8 +1,7 @@
 /**
  * The two MCP servers every specialist run attaches: the issue tracker
- * (Linear) and source control (GitHub) — same two named in
- * `agents/specialist-backend.md`/`-frontend.md`'s "How you hand back"
- * section. Mirrors `webhook-listener/src/activation-runner.ts`'s own
+ * (Linear) and source control (GitHub) — the two `agents/specialist.md`
+ * works through. Mirrors `webhook-listener/src/activation-runner.ts`'s own
  * URL/token conventions (same env var names, same defaults), adapted to the
  * Agent SDK's `McpHttpServerConfig` shape instead of the raw Messages API's
  * `mcp_servers` connector param.

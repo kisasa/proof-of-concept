@@ -7,20 +7,19 @@
  *
  * Fires when a story enters the tracker's "started" status — the
  * automated-dispatch redesign's replacement for the developer's
- * local-terminal dispatch act (docs/design-ledger.md, "automated dispatch
- * and BRD closure"). Scoped to stories, not epics, via
+ * local-terminal dispatch act. Scoped to stories, not epics, via
  * `requireLabelsPresentPrefix` — both share Linear's one status workflow,
  * but only a decomposed story carries a `surface:<name>` label.
  *
  * The literal status string below is the real Linear state name, not
- * CLAUDE.md's own hyphenated "In-Process" framework vocabulary — confirmed
+ * the design vocabulary's hyphenated "In-Process" — confirmed
  * against a live payload (2026-08-06) after this exact mismatch silently
  * no-op'd a real dispatch attempt (`{"name":"In Progress","type":"started"}`,
  * Linear's own stock name for the started state; nobody had customized it to
  * match the docs). This is engagement-specific tracker configuration, the
  * same category as the repo base or the specialist container name — it
  * belongs here, in the Linear-specific lane file, not in the tool-agnostic
- * framework vocabulary CLAUDE.md uses.
+ * design vocabulary.
  */
 
 import { createDispatchTrigger } from "../dispatch-trigger.js";

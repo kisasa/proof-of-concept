@@ -27,7 +27,7 @@ export type EntityType = "project" | "issue";
 // Whoever performed the underlying tracker action — a real human or the
 // pipeline's own bot user (distinguishable by id/email). Every Linear webhook
 // carries this at the top level regardless of event kind, confirmed against
-// live payloads 2026-08-06 (see docs/design-ledger.md, "reviewer-of-record") —
+// live payloads 2026-08-06 —
 // unlike authorId below, which only ever existed for comments.
 export interface TrackerActor {
   readonly id: string;
