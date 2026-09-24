@@ -274,6 +274,29 @@ its own `CLAUDE.md` (bootstrap Phase 5), so that ignore line was removed.
 
 ---
 
+## 2026-09-24 — Local-only operation for now
+
+### L1. The pipeline runs locally, with no AWS — settled
+
+The PoC pipeline runs through `docker-compose.yml`. Temporal is a local dev
+server, not Temporal Cloud. LocalStack emulates the ECS calls the dispatch
+worker makes, and it launches the specialist container on the local Docker
+engine. No AWS account is used.
+
+- `infrastructure/`, `scripts/new-deployment.py`, and the three
+  `build-and-push-*-ecr.yml` workflows are kept but not used.
+- The ECR workflows run only on a push to `main`. With no AWS secrets
+  configured they fail at the credentials step and push nothing.
+- F12's separation holds locally because:
+  - the local Temporal namespace is separate from ItP's by construction;
+  - the listener allowlists only the PoC tracker team;
+  - the GitHub token used locally must still be scoped to PoC repos only.
+- The specialist still clones `agents/` and `skills/` from GitHub
+  (`FRAMEWORK_REPO` at `FRAMEWORK_REF`), so this repo must be on GitHub at
+  the ref the local stack names.
+
+---
+
 ## Open items
 
 From `bootstrap.md` Section 8:
