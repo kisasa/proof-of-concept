@@ -33,6 +33,8 @@ services:
       LINEAR_WEBHOOK_SECRET: ""
       LINEAR_AGENT_API_KEY: ""
       AGENT_USER_ID: ""
+      # Required — comma-separated tracker team ids this listener serves.
+      TRACKER_ALLOWED_TEAM_IDS: ""
       GITHUB_TOKEN: ""
       ANTHROPIC_API_KEY: ""
 

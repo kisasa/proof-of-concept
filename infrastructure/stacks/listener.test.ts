@@ -7,8 +7,8 @@ import { ListenerStack } from "./listener.js";
 // construction time rather than accepting injected config.
 const TEST_CONTEXT = {
   aws: { region: "us-east-1", "account-number": "000000000000", profile: "example" },
-  "state-bucket-name": "ki-webhook-listener-tfstate",
-  "global-tags": { terraform: "true", project: "intent-to-production", environment: "test" },
+  "state-bucket-name": "example-tfstate",
+  "global-tags": { terraform: "true", project: "proof-of-concept", environment: "test" },
   "domain-name": "example.com",
   "hosted-zone-id": "Z0000000000000000000",
   "vpc-cidr-block": "10.10.0.0/22",
@@ -16,8 +16,8 @@ const TEST_CONTEXT = {
     "resource-name-prefix": "example",
   listener: {
     "environment-name": "test",
-    subdomain: "intent",
-    "ecr-repository-name": "intent-to-production",
+    subdomain: "proof-of-concept",
+    "ecr-repository-name": "proof-of-concept",
     "image-tag": "test-tag",
     port: 8787,
     cpu: 512,
@@ -33,23 +33,24 @@ const TEST_CONTEXT = {
     "claude-model-specification": "claude-sonnet-5",
     "claude-model-decompose": "claude-sonnet-5",
     "claude-effort": "high",
+    "allowed-team-ids": "team-a,team-b",
   },
   "specialist-sandbox": {
     "environment-name": "test",
-    "ecr-repository-name": "intent-to-production-specialist",
+    "ecr-repository-name": "proof-of-concept-specialist",
     "image-tag": "test-tag",
     cpu: 1024,
     memory: 2048,
     "log-retention-days": 30,
-    "framework-repo": "example-org/intent-to-production",
+    "framework-repo": "example-org/proof-of-concept",
     "framework-ref": "main",
     "claude-model": "claude-sonnet-5",
     "claude-effort": "high",
   },
   temporal: {
     "environment-name": "test",
-    "namespace-name": "intent-to-production-test",
-    "ecr-repository-name": "intent-to-production-temporal-worker",
+    "namespace-name": "proof-of-concept-test",
+    "ecr-repository-name": "proof-of-concept-temporal-worker",
     "image-tag": "test-tag",
     cpu: 512,
     memory: 1024,
@@ -83,6 +84,19 @@ describe("ListenerStack", () => {
 
     const temporalApiKeySecret = containerDefinition.secrets.find((entry) => entry.name === "TEMPORAL_API_KEY");
     expect(temporalApiKeySecret).toBeDefined();
+  });
+
+  it("passes the tracker team allowlist to the container as TRACKER_ALLOWED_TEAM_IDS", () => {
+    const json = JSON.parse(synth());
+    const taskDefinitions = Object.values(json.resource?.aws_ecs_task_definition ?? {}) as Array<{
+      container_definitions: string;
+    }>;
+    const containerDefinition = JSON.parse(taskDefinitions[0]!.container_definitions)[0] as {
+      environment: { name: string; value: string }[];
+    };
+
+    const allowlist = containerDefinition.environment.find((entry) => entry.name === "TRACKER_ALLOWED_TEAM_IDS");
+    expect(allowlist?.value).toBe("team-a,team-b");
   });
 
   it("reads the TEMPORAL_API_KEY parameter under the deployment's shared prefix", () => {

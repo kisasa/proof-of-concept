@@ -359,3 +359,45 @@ describe("parseEvent — Comment", () => {
     expect(await adapter.parseEvent(payload, "test-trace")).toBeNull();
   });
 });
+
+describe("entityTeamIds", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  function stubResponse(body: unknown, ok = true) {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok, status: ok ? 200 : 500, json: async () => body }));
+  }
+
+  it("returns an issue's one team", async () => {
+    stubResponse({ data: { issue: { team: { id: "team-a" } } } });
+    const adapter = createLinearAdapter(SECRET, API_KEY);
+    expect(await adapter.entityTeamIds("issue", "issue-1", "test-trace")).toEqual(["team-a"]);
+  });
+
+  it("returns every team a project spans", async () => {
+    stubResponse({ data: { project: { teams: { nodes: [{ id: "team-a" }, { id: "team-b" }] } } } });
+    const adapter = createLinearAdapter(SECRET, API_KEY);
+    expect(await adapter.entityTeamIds("project", "project-1", "test-trace")).toEqual(["team-a", "team-b"]);
+  });
+
+  it("returns null when the lookup fails", async () => {
+    stubResponse({}, false);
+    const adapter = createLinearAdapter(SECRET, API_KEY);
+    expect(await adapter.entityTeamIds("issue", "issue-1", "test-trace")).toBeNull();
+  });
+
+  it("returns null when the entity has no team", async () => {
+    stubResponse({ data: { project: { teams: { nodes: [] } } } });
+    const adapter = createLinearAdapter(SECRET, API_KEY);
+    expect(await adapter.entityTeamIds("project", "project-1", "test-trace")).toBeNull();
+  });
+
+  it("returns null without an API key, making no request", async () => {
+    const fetchSpy = vi.fn();
+    vi.stubGlobal("fetch", fetchSpy);
+    const adapter = createLinearAdapter(SECRET, "");
+    expect(await adapter.entityTeamIds("issue", "issue-1", "test-trace")).toBeNull();
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+});

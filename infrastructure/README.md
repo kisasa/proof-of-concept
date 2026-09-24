@@ -258,27 +258,28 @@ manage. Values marked `REPLACE_ME` must be filled in before the first synth.
 | `parameter-prefix` | `/example/prod/` | Trailing slash included. One shared prefix for every stack's SSM secrets — see Creating the SSM parameters |
 | `listener.environment-name` | `prod` | **Max 30 characters** — load balancer and target group names cap at 32 |
 | `listener.subdomain` | `hooks` | Combines into `hooks.prod.example.com` |
-| `listener.ecr-repository-name` | `intent-to-production` | Must match the CI workflow's `ECR_REPOSITORY` |
+| `listener.ecr-repository-name` | `proof-of-concept` | Must match the CI workflow's `ECR_REPOSITORY` |
 | `listener.image-tag` | `a1b2c3d4e5f6` | See below |
 | `listener.port` | `8787` | Container port and target group port |
 | `listener.cpu` / `.memory` | `512` / `1024` | Task-level Fargate sizing |
 | `listener.log-retention-days` | `30` | |
 | `listener.debounce-ms` | `15000` | Passed through as `DEBOUNCE_MS` |
+| `listener.allowed-team-ids` | `<team-id>,<team-id>` | Required. Comma-separated tracker team ids, passed through as `TRACKER_ALLOWED_TEAM_IDS`; the listener rejects events from every other team and refuses to start without one |
 | `listener.log-level` | `info` | Passed through as `LOG_LEVEL` |
 | `listener.linear-api-url`, `.linear-mcp-url`, `.github-mcp-url`, `.product-context-paths` | `null` | Optional. `null` means the application's own default applies; the keys are spelled out to document that they exist |
 | `listener.claude-model-intake`, `.claude-model-specification`, `.claude-model-decompose` | `claude-opus-5-5` (intake, specification) / `claude-sonnet-5` (decompose) | Required — no code-level default. Per-lane model, passed through as `CLAUDE_MODEL_INTAKE`/`_SPECIFICATION`/`_DECOMPOSE`. Tune per engagement without a code change or redeploying the image — just this stack |
 | `listener.claude-effort` | `high` | Required — no code-level default. Uniform across every lane's activation call, passed through as `CLAUDE_EFFORT`. One of `low`/`medium`/`high`/`xhigh`/`max` |
 | `specialist-sandbox.environment-name` | `prod` | Validated independently of `listener.environment-name`, though today they're the same value |
-| `specialist-sandbox.ecr-repository-name` | `intent-to-production-specialist` | Doesn't exist yet — see Prerequisites |
+| `specialist-sandbox.ecr-repository-name` | `proof-of-concept-specialist` | Doesn't exist yet — see Prerequisites |
 | `specialist-sandbox.image-tag` | `REPLACE_ME` | Placeholder until the specialist has a Dockerfile and a CI push target |
 | `specialist-sandbox.cpu` / `.memory` | `2048` / `4096` | Task-level Fargate sizing. Raised from the original `1024`/`2048` (1 vCPU, the smallest memory Fargate allows at that CPU tier) — undersized for a real target repo's `npm ci` + build + test run, on top of the Chromium install this image already carries for Playwright (see the Dockerfile's own note). Fargate has no swap: exceeding the memory limit is a hard OOM kill of the whole task, not graceful degradation, and a killed task looks like an unexplained specialist failure with no clear error from the app itself. Raise further (e.g. `4096`/`8192`) if a real engagement's build/test suite is heavier than this |
 | `specialist-sandbox.log-retention-days` | `30` | |
-| `specialist-sandbox.framework-repo` | `example-org/intent-to-production` | `org/name` on GitHub — where the specialist clones its own `agents/`/`skills/` definitions from. Baked into the task definition's container environment as `FRAMEWORK_REPO`; not part of any per-dispatch `RunTask` override |
+| `specialist-sandbox.framework-repo` | `example-org/proof-of-concept` | `org/name` on GitHub — where the specialist clones its own `agents/`/`skills/` definitions from. Baked into the task definition's container environment as `FRAMEWORK_REPO`; not part of any per-dispatch `RunTask` override |
 | `specialist-sandbox.framework-ref` | `main` | Git ref of the framework repo to clone, as `FRAMEWORK_REF`. A pinned ref here controls what every specialist run in this deployment uses, independent of whatever ref this deployment's own listener/temporal-workers images were built from |
 | `specialist-sandbox.claude-model`, `.claude-effort` | `claude-opus-5-5` / `high` | Required — no code-level default. Baked into the task definition's baseline environment as `CLAUDE_MODEL`/`CLAUDE_EFFORT` — every specialist run in this deployment uses it, not just one dispatch |
 | `temporal.environment-name` | `prod` | Validated independently of the other stacks' `environment-name`, though today they're the same value |
-| `temporal.namespace-name` | `intent-to-production-prod` | Base name — Temporal Cloud appends an account-id suffix to form the fully-qualified namespace id |
-| `temporal.ecr-repository-name` | `intent-to-production-temporal-worker` | Doesn't exist yet — see Prerequisites |
+| `temporal.namespace-name` | `proof-of-concept-prod` | Base name — Temporal Cloud appends an account-id suffix to form the fully-qualified namespace id |
+| `temporal.ecr-repository-name` | `proof-of-concept-temporal-worker` | Doesn't exist yet — see Prerequisites |
 | `temporal.image-tag` | `REPLACE_ME` | Placeholder until the worker has a Dockerfile and a CI push target |
 | `temporal.cpu` / `.memory` | `512` / `1024` | Task-level Fargate sizing |
 | `temporal.desired-count` | `1` | Not a singleton constraint like the listener's — safe to raise once there's real load to justify it |

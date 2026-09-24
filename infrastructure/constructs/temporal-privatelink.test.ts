@@ -8,7 +8,7 @@ const baseConfig = {
   subnetIds: ["subnet-aaaaaaaa", "subnet-bbbbbbbb"],
   vpcCidrBlock: "10.0.0.0/22",
   awsRegion: "us-east-1",
-  globalTags: { project: "intent-to-production" },
+  globalTags: { project: "proof-of-concept" },
 };
 
 function synth(config: typeof baseConfig = baseConfig): string {

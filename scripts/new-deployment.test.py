@@ -64,10 +64,10 @@ def base_config():
                 "account-number": "000000000000",
                 "profile": "example",
             },
-            "state-bucket-name": "proj0903-intent-tfstate",
+            "state-bucket-name": "proj0903-proof-of-concept-tfstate",
             "global-tags": {
                 "terraform": "true",
-                "project": "intent-to-production",
+                "project": "proof-of-concept",
                 "environment": "PROJ0903",
             },
             "domain-name": "example.com",
@@ -77,18 +77,18 @@ def base_config():
             "resource-name-prefix": "proj0903",
             "listener": {
                 "environment-name": "PROJ0903",
-                "subdomain": "intent",
+                "subdomain": "proof-of-concept",
                 "port": 8787,
                 "linear-api-url": None,
                 "claude-effort": "high",
             },
             "specialist-sandbox": {
                 "environment-name": "PROJ0903",
-                "framework-repo": "example-org/intent-to-production",
+                "framework-repo": "example-org/proof-of-concept",
             },
             "temporal": {
                 "environment-name": "PROJ0903",
-                "namespace-name": "intent-to-production-proj0903",
+                "namespace-name": "proof-of-concept-proj0903",
                 "reviewer-email-to-github-login": {"user@example.com": "example-login"},
             },
         },
@@ -158,8 +158,8 @@ class RenameDeploymentTest(unittest.TestCase):
 
     def test_preserves_a_lowercase_site(self):
         self.assertEqual(
-            new_deployment.rename_deployment("proj0903-intent-tfstate", "PROJ0903", "TEAM1015"),
-            "team1015-intent-tfstate",
+            new_deployment.rename_deployment("proj0903-proof-of-concept-tfstate", "PROJ0903", "TEAM1015"),
+            "team1015-proof-of-concept-tfstate",
         )
 
     def test_renames_both_cases_from_one_call(self):
@@ -188,8 +188,8 @@ class RenameDeploymentTest(unittest.TestCase):
 
     def test_leaves_a_string_without_the_name_alone(self):
         self.assertEqual(
-            new_deployment.rename_deployment("intent-to-production", "PROJ0903", "TEAM1015"),
-            "intent-to-production",
+            new_deployment.rename_deployment("proof-of-concept", "PROJ0903", "TEAM1015"),
+            "proof-of-concept",
         )
 
 
@@ -209,10 +209,10 @@ class RenameDeploymentInConfigTest(unittest.TestCase):
 
     def test_renames_the_lowercase_sites(self):
         context = self.renamed["context"]
-        self.assertEqual(context["state-bucket-name"], "team1015-intent-tfstate")
+        self.assertEqual(context["state-bucket-name"], "team1015-proof-of-concept-tfstate")
         self.assertEqual(context["parameter-prefix"], "/example/team1015/")
         self.assertEqual(context["resource-name-prefix"], "team1015")
-        self.assertEqual(context["temporal"]["namespace-name"], "intent-to-production-team1015")
+        self.assertEqual(context["temporal"]["namespace-name"], "proof-of-concept-team1015")
 
     def test_counts_every_renamed_value(self):
         self.assertEqual(self.renamed_sites, 9)
@@ -240,11 +240,11 @@ class RenameDeploymentInConfigTest(unittest.TestCase):
     def test_carries_whatever_the_base_had_drifted_to(self):
         """Inheriting the base's shape is the contract, including its irregularities."""
         drifted = base_config()
-        drifted["context"]["temporal"]["namespace-name"] = "itp-proj0903"
+        drifted["context"]["temporal"]["namespace-name"] = "poc-proj0903"
 
         renamed, _ = new_deployment.rename_deployment_in_config(drifted, "PROJ0903", "TEAM1015")
 
-        self.assertEqual(renamed["context"]["temporal"]["namespace-name"], "itp-team1015")
+        self.assertEqual(renamed["context"]["temporal"]["namespace-name"], "poc-team1015")
 
 
 class ValidateGeneratedConfigTest(unittest.TestCase):
@@ -260,7 +260,7 @@ class ValidateGeneratedConfigTest(unittest.TestCase):
 
     def test_catches_a_leftover_base_name(self):
         config = self.renamed_config()
-        config["context"]["listener"]["subdomain"] = "intent-proj0903"
+        config["context"]["listener"]["subdomain"] = "proof-of-concept-proj0903"
 
         problems = new_deployment.validate_generated_config(config, "PROJ0903", "TEAM1015")
 
@@ -276,7 +276,7 @@ class ValidateGeneratedConfigTest(unittest.TestCase):
 
     def test_catches_a_state_bucket_that_did_not_pick_up_the_new_name(self):
         config = self.renamed_config()
-        config["context"]["state-bucket-name"] = "shared-intent-tfstate"
+        config["context"]["state-bucket-name"] = "shared-proof-of-concept-tfstate"
 
         problems = new_deployment.validate_generated_config(config, "PROJ0903", "TEAM1015")
 

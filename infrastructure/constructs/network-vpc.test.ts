@@ -6,7 +6,7 @@ const baseConfig = {
   name: "network-test",
   cidrBlock: "10.0.0.0/22",
   availabilityZoneCount: 2,
-  globalTags: { project: "intent-to-production" },
+  globalTags: { project: "proof-of-concept" },
 };
 
 function synth(config: typeof baseConfig = baseConfig): string {

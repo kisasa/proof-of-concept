@@ -1,6 +1,7 @@
 /**
- * Entry point. Thin by design — all decision logic lives in the three layers it wires together:
+ * Entry point. Thin by design — all decision logic lives in the layers it wires together:
  *   adapters/          → verify the request, parse the raw payload into a TrackerEvent
+ *   team-allowlist     → drop any event whose entity is not in an allowlisted team
  *   swim-lane-routing  → decide which agent lane fires, if any
  *   agent-scheduler    → debounce follow-ups, call the agent
  *
@@ -16,6 +17,7 @@ import { lanes } from "./swim-lanes.js";
 import { createLogger } from "./logger.js";
 import { newTraceId } from "./trace-id.js";
 import { envOr } from "./env.js";
+import { checkTeamAllowlist, parseAllowedTeamIds } from "./team-allowlist.js";
 
 // Choose what HTTP server you want to use.
 import { serve } from "@hono/node-server";
@@ -45,6 +47,15 @@ function required(name: string): string {
 // ignore comments the agent itself posted — without it, every agent comment
 // would re-trigger evaluation, creating an infinite loop.
 const AGENT_USER_ID = required("AGENT_USER_ID");
+
+// The tracker team(s) this deployment serves — comma-separated team ids.
+// Required: a listener with no allowlist would act on every team in the
+// workspace, including another pipeline's (see team-allowlist.ts).
+const ALLOWED_TEAM_IDS = parseAllowedTeamIds(required("TRACKER_ALLOWED_TEAM_IDS"));
+if (ALLOWED_TEAM_IDS.size === 0) {
+  log.error("TRACKER_ALLOWED_TEAM_IDS lists no team ids (see .env.example)");
+  process.exit(1);
+}
 const port = Number(envOr("PORT", "8787"));
 
 const dispatch = makeDispatcher({
@@ -82,6 +93,14 @@ app.post("/webhooks/linear", async (c) => {
     return c.json({ ok: true, fired: false });
   }
   reqLog.trace(`parsed event: kind=${event.kind} entityType=${event.entityType} entityId=${event.entityId}`);
+
+  const teamIds = await adapter.entityTeamIds(event.entityType, event.entityId, traceId);
+  const allowlist = checkTeamAllowlist(teamIds, ALLOWED_TEAM_IDS);
+  if (!allowlist.allowed) {
+    reqLog.info(`rejected: ${event.entityType} ${event.entityId} — ${allowlist.reason}`);
+    return c.json({ ok: true, fired: false, rejected: "team" });
+  }
+  reqLog.trace(`team allowlist passed: [${(teamIds ?? []).join(", ")}]`);
 
   if (TEST_STAGE === "accept") {
     reqLog.info(`TEST_STAGE=accept — webhook accepted, stopping before routing`);

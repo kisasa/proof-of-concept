@@ -8,7 +8,7 @@ const baseConfig = {
   clusterArn: "arn:aws:ecs:us-east-1:123456789012:cluster/example-prod",
   vpcId: "vpc-0123456789abcdef0",
   subnetIds: ["subnet-aaaaaaaa", "subnet-bbbbbbbb"],
-  image: "123456789012.dkr.ecr.us-east-1.amazonaws.com/intent-to-production:latest",
+  image: "123456789012.dkr.ecr.us-east-1.amazonaws.com/proof-of-concept:latest",
   containerPort: 8787,
   cpu: 512,
   memory: 1024,
@@ -20,7 +20,7 @@ const baseConfig = {
   loadBalancerSecurityGroupId: "sg-alb0123456789abc",
   targetGroupArn: "arn:aws:elasticloadbalancing:us-east-1:123456789012:targetgroup/example-tg/abc123",
   dependsOn: [],
-  globalTags: { project: "intent-to-production" },
+  globalTags: { project: "proof-of-concept" },
 };
 
 function synth(): string {

@@ -41,7 +41,7 @@ jobs:
     # replaces was commented out, so the protection its comment described had
     # not been running at all.
     env:
-      ECR_REPOSITORY: intent-to-production-temporal-worker
+      ECR_REPOSITORY: proof-of-concept-temporal-worker
     steps:
       - name: Resolve which commit to build
         id: resolve

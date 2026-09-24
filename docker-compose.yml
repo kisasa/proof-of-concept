@@ -122,7 +122,7 @@ services:
       # Set the real org/name in docker-compose.override.yml, the same way
       # every credential above is set, and point FRAMEWORK_REF at a feature
       # branch when testing framework changes locally.
-      FRAMEWORK_REPO: example-org/intent-to-production
+      FRAMEWORK_REPO: example-org/proof-of-concept
       FRAMEWORK_REF: main
     volumes:
       - ./scripts/localstack-bootstrap.sh:/bootstrap.sh:ro
@@ -155,6 +155,7 @@ services:
       LINEAR_WEBHOOK_SECRET: ""
       LINEAR_AGENT_API_KEY: ""
       AGENT_USER_ID: ""
+      TRACKER_ALLOWED_TEAM_IDS: ""
       GITHUB_TOKEN: ""
       ANTHROPIC_API_KEY: ""
     ports:

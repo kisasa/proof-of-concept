@@ -15,7 +15,7 @@ const context: DispatchContext = {
   surfaceSkills: [],
   storyBranch: "proj-101-refund-endpoint",
   epicBranch: "proj-10-refunds",
-  frameworkRepo: "example-org/intent-to-production",
+  frameworkRepo: "example-org/proof-of-concept",
   frameworkRef: "main",
   maxTurns: 40,
   revision: null,

@@ -9,7 +9,7 @@ const REQUIRED_VARS = {
   SURFACE_REPO: "example-org/example-api",
   STORY_BRANCH: "proj-101-refund-endpoint",
   EPIC_BRANCH: "proj-10-refunds",
-  FRAMEWORK_REPO: "example-org/intent-to-production",
+  FRAMEWORK_REPO: "example-org/proof-of-concept",
   FRAMEWORK_REF: "main",
   MAX_TURNS: "40",
 };
@@ -46,7 +46,7 @@ describe("loadDispatchContext", () => {
       surfaceSkills: [],
       storyBranch: "proj-101-refund-endpoint",
       epicBranch: "proj-10-refunds",
-      frameworkRepo: "example-org/intent-to-production",
+      frameworkRepo: "example-org/proof-of-concept",
       frameworkRef: "main",
       maxTurns: 40,
       revision: null,

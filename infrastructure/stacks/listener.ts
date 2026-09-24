@@ -163,6 +163,10 @@ export class ListenerStack extends BaseStack {
       { name: "CLAUDE_MODEL_SPECIFICATION", value: this.listener.claudeModelSpecification },
       { name: "CLAUDE_MODEL_DECOMPOSE", value: this.listener.claudeModelDecompose },
       { name: "CLAUDE_EFFORT", value: this.listener.claudeEffort },
+
+      // Required, not an optional override: the listener refuses to start
+      // without an allowlist (webhook-listener/src/team-allowlist.ts).
+      { name: "TRACKER_ALLOWED_TEAM_IDS", value: this.listener.allowedTeamIds },
     ];
 
     const optional: Record<string, string | undefined> = {

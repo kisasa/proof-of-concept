@@ -184,6 +184,24 @@ const RULES = [
     label: "org name used as a code identifier or filename",
     pattern: /Kisasa[A-Z]\w*|kisasa-[a-z]+\.ts/g,
   },
+  {
+    /**
+     * Intent to Production's resource identities. This pipeline's plumbing was
+     * copied from ItP, and every ItP resource name in it — ECR repositories,
+     * the Temporal namespace, the framework repo the specialist clones, the
+     * project tag, the listener subdomain — was replaced in the bootstrap's
+     * identity phase (docs/bootstrap-inventory.md, §4). A live ItP name here
+     * would point a deploy or a CI push at ItP's own resources.
+     *
+     * Skips markdown on purpose. This repo may know about ItP (the dependency
+     * rule in docs/bootstrap.md) and its documents name ItP's repository when
+     * recording where the plumbing came from. What must not name an ItP
+     * resource is code, config, and CI.
+     */
+    label: "Intent to Production resource identity",
+    pattern: /intent-to-production|ki-webhook-listener|["']?subdomain["']?\s*:\s*["']intent["']/gi,
+    skipMarkdown: true,
+  },
 ];
 
 /**

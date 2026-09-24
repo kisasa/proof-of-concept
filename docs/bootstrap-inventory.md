@@ -17,7 +17,7 @@ reported in the review conversation.
 
 | Item | Value |
 |---|---|
-| Checkout | `C:\Users\David\Source\kisasa\intent-to-production` |
+| Checkout | the local ItP clone, a sibling of this repo (`..\intent-to-production`) |
 | Branch | `main` |
 | Commit | `5aed0398a013fe7cb3ccec8d6bf024e775a685a4` |
 | Commit date / subject | 2026-09-23 16:42:22 -0400, "Bring both Claude SDKs up to latest (#17)" |
@@ -347,8 +347,8 @@ from:
 2. Commit only hashes of the strings.
 3. Copy the rules as they are and accept this file as the one exemption.
 
-The existing rules also flag `David`, `Dieruf`, and `@kisasa.io`, which will
-match this repo's own authorship if that appears in files.
+The existing people rules also match the repo owner's own name and email
+domain, so this repo's authorship will trip them if it appears in files.
 
 **C2. `scripts/new-deployment.py`: the condition is ambiguous.** No
 infrastructure code imports it. `infrastructure/README.md` makes it the
@@ -436,3 +436,44 @@ Recorded 2026-09-24, from the reviewer's answers. Append-only.
 **Not a conflict, noted:** ItP's `CLAUDE.md` is gitignored, and code comments
 cite it as if it were committed ("CLAUDE.md, Agent Roster", "No Private
 References").
+
+---
+
+## 9. Phase 2 record
+
+Recorded 2026-09-24. Append-only.
+
+- **Identity swap.** Every `intent-to-production` value in code, config, CI,
+  and fixtures became `proof-of-concept`: the three ECR repository names, the
+  project tag, the Temporal namespace, and the framework repo coordinate. ItP's
+  listener subdomain `intent` became `proof-of-concept`; on a shared domain it
+  would have produced ItP's live hostname. `ki-webhook-listener-tfstate` became
+  `example-tfstate`. A comment in `temporal-namespace.ts` that recorded ItP's
+  real namespace name was reworded.
+- **Kept as-is, deliberately.**
+  - The task queue `dispatch-task-queue`: Temporal task queues are
+    namespace-scoped, and the namespace is now separate.
+  - The template's `framework-ref: dev`: this repo has no `dev` branch, so a
+    deploy fails at the clone rather than reading anything of ItP's.
+  - The 60 dangling references to ItP docs, and the check's pointer to
+    `CONTRIBUTING.md`, which Phase 5 re-authors.
+- **Team allowlist added.** None existed.
+  - `TRACKER_ALLOWED_TEAM_IDS` is required, and the listener refuses to start
+    without it.
+  - Every parsed event's entity is resolved to its team or teams through the
+    new `TrackerAdapter.entityTeamIds`. The allowlist then rejects the event,
+    fail closed, unless every team is allowlisted (`team-allowlist.ts`).
+  - It is supplied by the new required context key
+    `listener.allowed-team-ids`.
+  - The Linear `project { teams }` query shape is marked VERIFY.
+- **Follow-up, not done.** `scripts/new-deployment.py` copies a base config
+  unchanged apart from the deployment name, so a new deployment inherits the
+  base deployment's `allowed-team-ids`. It needs to prompt for this value, or
+  flag it, before the script is used for a second PoC deployment.
+- **Private-reference check.** A new rule, "Intent to Production resource
+  identity", matches `intent-to-production`, `ki-webhook-listener`, and an
+  `intent` subdomain value in every file except markdown. Markdown may name
+  ItP, per the dependency rule. Against the Phase 1 (ItP-valued)
+  `cdktf.example.json` it reports 7 findings; the repo now passes. Two
+  owner-name references in this inventory were reworded to pass the existing
+  people rules.

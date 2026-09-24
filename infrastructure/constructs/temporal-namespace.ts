@@ -102,7 +102,7 @@ export class TemporalNamespace extends Construct {
     // long enough namespaceName, "...-api-key" and "...-api-key-expiry"
     // truncate to the identical prefix — a real duplicate-construct-id
     // collision, confirmed against this deployment's own namespaceName
-    // (`intent-to-production-prod2`). Uniqueness only needs to hold among
+    // (a 26-character one). Uniqueness only needs to hold among
     // this construct's own children, so a plain id sidesteps the problem
     // entirely rather than needing a cleverer truncation-safe suffix.
     const apiKeyExpiry = new Offset(this, "api-key-expiry", {

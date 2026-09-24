@@ -20,7 +20,7 @@
     "state-bucket-name": "example-tfstate",
     "global-tags": {
       "terraform": "true",
-      "project": "intent-to-production",
+      "project": "proof-of-concept",
       "environment": "prod"
     },
     "domain-name": "example.com",
@@ -30,8 +30,8 @@
     "resource-name-prefix": "example",
     "listener": {
       "environment-name": "prod",
-      "subdomain": "intent",
-      "ecr-repository-name": "intent-to-production",
+      "subdomain": "proof-of-concept",
+      "ecr-repository-name": "proof-of-concept",
       "image-tag": "latest",
       "port": 8787,
       "cpu": 512,
@@ -46,24 +46,25 @@
       "claude-model-intake": "claude-opus-5-5",
       "claude-model-specification": "claude-opus-5-5",
       "claude-model-decompose": "claude-sonnet-5",
-      "claude-effort": "high"
+      "claude-effort": "high",
+      "allowed-team-ids": "00000000-0000-4000-8000-000000000000"
     },
     "specialist-sandbox": {
       "environment-name": "prod",
-      "ecr-repository-name": "intent-to-production-specialist",
+      "ecr-repository-name": "proof-of-concept-specialist",
       "image-tag": "latest",
       "cpu": 2048,
       "memory": 4096,
       "log-retention-days": 14,
-      "framework-repo": "example-org/intent-to-production",
+      "framework-repo": "example-org/proof-of-concept",
       "framework-ref": "dev",
       "claude-model": "claude-opus-5-5",
       "claude-effort": "high"
     },
     "temporal": {
       "environment-name": "prod",
-      "namespace-name": "intent-to-production-prod",
-      "ecr-repository-name": "intent-to-production-temporal-worker",
+      "namespace-name": "proof-of-concept-prod",
+      "ecr-repository-name": "proof-of-concept-temporal-worker",
       "image-tag": "latest",
       "cpu": 512,
       "memory": 1024,

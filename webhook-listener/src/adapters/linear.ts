@@ -144,6 +144,56 @@ async function fetchEntityContext(
 }
 
 /**
+ * The team(s) an entity belongs to, for the listener's team allowlist
+ * (team-allowlist.ts). An issue has exactly one team; a project can span
+ * several. Looked up rather than read from the payload so every event kind —
+ * comments and project updates carry no team at all — resolves the same way.
+ *
+ * `issue { team { id } }` is the same shape move-story-to-todo.ts already
+ * queries. VERIFY `project { teams { nodes { id } } }` against the live
+ * schema before relying on it.
+ *
+ * Null on any failure: the allowlist rejects what it cannot resolve.
+ */
+async function fetchEntityTeamIds(
+  entityType: EntityType,
+  entityId: string,
+  apiKey: string,
+  traceId: string,
+): Promise<string[] | null> {
+  const reqLog = log.child(traceId);
+  const query =
+    entityType === "issue"
+      ? `query($id:String!){ issue(id:$id){ team { id } } }`
+      : `query($id:String!){ project(id:$id){ teams { nodes { id } } } }`;
+
+  reqLog.trace(`fetching team(s) for ${entityType} ${entityId}`);
+  const res = await fetch(LINEAR_API, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: apiKey },
+    body: JSON.stringify({ query: query, variables: { id: entityId } }),
+  });
+  if (!res.ok) {
+    reqLog.error(`${entityType} team fetch failed: ${res.status}`);
+    return null;
+  }
+
+  const json = (await res.json()) as {
+    data?: {
+      issue?: { team?: { id?: string } | null } | null;
+      project?: { teams?: { nodes?: { id: string }[] } | null } | null;
+    };
+  };
+
+  if (entityType === "issue") {
+    const teamId = json.data?.issue?.team?.id;
+    return teamId ? [teamId] : null;
+  }
+  const nodes = json.data?.project?.teams?.nodes;
+  return nodes && nodes.length > 0 ? nodes.map((n) => n.id) : null;
+}
+
+/**
  * Issue/Project webhook payloads carry label ids only (data.labelIds,
  * updatedFrom.labelIds — flat arrays, no names). Routing matches labels by
  * name, so every id this adapter reports has to be resolved. Batched: one
@@ -398,6 +448,11 @@ export function createLinearAdapter(webhookSecret: string, agentApiKey: string):
 
       reqLog.trace(`webhook type "${hook.type}" action "${hook.action}" is not a recognized firing case — discarding`);
       return null;
+    },
+
+    async entityTeamIds(entityType: EntityType, entityId: string, traceId: string): Promise<string[] | null> {
+      if (!agentApiKey) return null;
+      return fetchEntityTeamIds(entityType, entityId, agentApiKey, traceId);
     },
   };
 }

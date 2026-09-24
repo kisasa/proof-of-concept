@@ -43,6 +43,14 @@ export interface ListenerConfiguration {
   readonly claudeModelSpecification: string;
   readonly claudeModelDecompose: string;
   readonly claudeEffort: string;
+
+  /**
+   * Comma-separated tracker team ids this deployment's listener serves,
+   * passed through as TRACKER_ALLOWED_TEAM_IDS. Required: the listener
+   * refuses to start without one, so a missing key should fail synth, not a
+   * container start.
+   */
+  readonly allowedTeamIds: string;
 }
 
 export function listenerConfigurationFromContext(node: ContextNode): ListenerConfiguration {
@@ -78,5 +86,6 @@ export function listenerConfigurationFromContext(node: ContextNode): ListenerCon
     claudeModelSpecification: requireString(node, "claude-model-specification", path),
     claudeModelDecompose: requireString(node, "claude-model-decompose", path),
     claudeEffort: requireString(node, "claude-effort", path),
+    allowedTeamIds: requireString(node, "allowed-team-ids", path),
   };
 }

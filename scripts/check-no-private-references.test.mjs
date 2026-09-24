@@ -95,6 +95,27 @@ test("does not flag the ordinary word target", () => {
   assert.ok(!flags("// the target repo is cloned fresh per run"));
 });
 
+test("catches an ItP resource name in CI, code, and config", () => {
+  assert.ok(flags("      ECR_REPOSITORY: intent-to-production-specialist", ".github/workflows/build.yml"));
+  assert.ok(flags('    "framework-repo": "example-org/intent-to-production",', "infrastructure/cdktf.example.json"));
+  assert.ok(flags('  "state-bucket-name": "ki-webhook-listener-tfstate",'));
+});
+
+test("catches ItP's listener subdomain as a config value, in JSON or TypeScript", () => {
+  assert.ok(flags('      "subdomain": "intent",', "infrastructure/cdktf.example.json"));
+  assert.ok(flags('    subdomain: "intent",'));
+});
+
+test("allows markdown to name ItP's repository, but not config", () => {
+  assert.ok(!flags("Plumbing copied from `intent-to-production` at a pinned commit.", "docs/design-ledger.md"));
+  assert.ok(flags('FRAMEWORK_REPO: example-org/intent-to-production', "docker-compose.yml"));
+});
+
+test("does not flag this repo's own names or the ordinary word intent", () => {
+  assert.ok(!flags('    "ecr-repository-name": "proof-of-concept-specialist",', "infrastructure/cdktf.example.json"));
+  assert.ok(!flags("// the intent of this check is to fail early"));
+});
+
 test("reports the path and line it found, so a failure is actionable", () => {
   const found = findingsIn("src/example.ts", "clean line\nname: `kisasa-${env}`,\n");
   assert.equal(found.length, 1);

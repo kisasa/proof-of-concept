@@ -29,7 +29,7 @@ const baseConfig = {
   secretParameterArns: ["arn:aws:ssm:us-east-1:123456789012:parameter/github-token"],
   awsRegion: "us-east-1",
   logRetentionDays: 30,
-  globalTags: { project: "intent-to-production" },
+  globalTags: { project: "proof-of-concept" },
   dispatchTarget: dispatchTarget,
 };
 

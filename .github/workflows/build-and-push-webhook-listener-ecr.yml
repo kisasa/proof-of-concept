@@ -39,7 +39,7 @@ jobs:
     # replaces was commented out, so the protection its comment described had
     # not been running at all.
     env:
-      ECR_REPOSITORY: intent-to-production
+      ECR_REPOSITORY: proof-of-concept
     steps:
       - name: Resolve which commit to build
         id: resolve
