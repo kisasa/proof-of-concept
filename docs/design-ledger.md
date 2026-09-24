@@ -375,6 +375,18 @@ This amends W1, on the owner's direction.
 
 ---
 
+## 2026-09-24 — No ad-hoc epic or story skills
+
+### A1. Ad-hoc epic and story creation is not carried over — settled
+
+ItP's desktop skills for creating an epic or story outside the normal path
+(`desktop-skills/`) were excluded at bootstrap. `bootstrap.md` Section 6 left
+open whether they would be re-authored later. The owner decided they are not
+needed: work enters a PoC through its hypothesis brief and demo path, and
+there is no separate path for ad-hoc epics or stories.
+
+---
+
 ## Open items
 
 From `bootstrap.md` Section 8:
