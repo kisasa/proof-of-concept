@@ -518,3 +518,58 @@ Recorded 2026-09-24. Append-only.
   content, not finalized here. `prompt-templates/intake.md` still tells the
   agent to read a "business-requirements document", and some comments still
   describe BRDs.
+
+---
+
+## 11. Phase 4 record
+
+Recorded 2026-09-24. Append-only.
+
+- **What was drafted.** Twelve structural drafts, each marked
+  `DRAFT — unvalidated; prompt engineering happens against real PoC runs`.
+  Content comes from `docs/bootstrap.md` Section 3 and from what the copied
+  plumbing parses. ItP's definitions were read for file format only (skill
+  frontmatter `name`/`description`; agents as plain markdown).
+  - Agents: `intake-agent`, `specification-agent`, `decompose-agent`,
+    `specialist`.
+  - Skills named in Phase 4: `hypothesis-brief-writing`, `shortcut-marking`,
+    `demo-gate`, `graduation-packaging`.
+  - Skills the plumbing loads, re-authored: `api-map-writing`,
+    `tracker-writing`, `epic-writing`, `story-contract`.
+  - `epic-writing` and `story-contract` are not in Phase 4's list, but the
+    lanes and the specialist load them. `story-contract` also documents the
+    formats the dispatcher parses, and its example was checked against
+    `parseBlockingDependencyIds`.
+- **Labels follow the unchanged gate logic.**
+  - Drafts use the literal labels and statuses the listener routes on:
+    `ready for intake`, `spec:*`, `eval:*`, `surface:`/`tier:`/`size:`, and
+    `Backlog`/`Evaluation`/`In Progress`/`Todo`.
+  - The proposed `brief:`, `claim:`, and `verdict:` labels are layered on as
+    state that no code reads.
+  - Renaming a routed label, such as `ready for intake` to a `brief:` label,
+    is a gate-logic change and is deferred.
+- **Mismatches between Section 3 and the current plumbing.** These were not
+  resolved in code:
+  - "An epic dispatches directly" is expressed as Decompose creating a single
+    story, because dispatch requires a story with a parent epic and a
+    `surface:` label.
+  - Decompose is still woken on every `spec:resolved`.
+  - The listener still routes `spec:awaiting-designer`; the drafts never
+    apply it.
+  - The Intake lane has no codebase access (`codebaseAccess: false`), so the
+    registry it proposes comes from the thread and attachments.
+  - The runner's assignment message tells the specialist to read "the linked
+    design issue"; the draft substitutes the brief's layout references.
+  - `prompt-templates/*.md` still describe ItP's flow, such as the BRD in
+    `intake.md`. They are prompt content and were not edited.
+- **Skills no lane runs yet.** `demo-gate` and `graduation-packaging` have no
+  lane to run them, and nothing applies `claim:awaiting-demo` when an epic's
+  last story merges. `shortcut-marking` arrives through the registry's
+  `skills:` field, which is how the Intake draft proposes it.
+- **Open, recorded in the drafts:**
+  - who writes each surface's `CONVENTIONS.md` before the first dispatch
+  - how shortcut ids avoid collisions when specialist runs are concurrent
+  - how the BRD-seed format stays current without a runtime dependency
+- **Shortcut id placeholders.** The drafts write shortcut ids as `SC-###`,
+  never with digits. A concrete id matches the private-reference check's
+  issue-key shape rule.
