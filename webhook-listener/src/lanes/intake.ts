@@ -23,7 +23,7 @@ export const config: AgentLaneConfig = {
   name: "intake",
   entityType: "project",
   agentFile: "intake-agent.md",
-  skills: ["epic-writing", "business-requirements-writing", "tracker-writing"],
+  skills: ["epic-writing", "hypothesis-brief-writing", "tracker-writing"],
   codebaseAccess: false,
   // Infra-required per engagement, no code-level default — see
   // infrastructure/models/listener-configuration.ts and CLAUDE_MODEL_INTAKE

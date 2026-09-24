@@ -477,3 +477,44 @@ Recorded 2026-09-24. Append-only.
   `cdktf.example.json` it reports 7 findings; the repo now passes. Two
   owner-name references in this inventory were reworded to pass the existing
   people rules.
+
+---
+
+## 10. Phase 3 record
+
+Recorded 2026-09-24. Append-only.
+
+- **Listener loaders already resolve inside this repo.**
+  `prompt-assembly.ts` and `skills.ts` read `../../agents/` and
+  `../../skills/`, and the Dockerfile copies the repo root's `agents/` and
+  `skills/`. No path change was needed.
+- **Specialist loader.** It reads from a clone of `FRAMEWORK_REPO`, which now
+  defaults to `example-org/proof-of-concept` (Phase 2, C7). A real deployment
+  sets it to this repository in its untracked `cdktf.<deployment>.json`. The
+  coordinate stays a placeholder in committed files, because the
+  private-reference check forbids the org name as a coordinate.
+- **One reference repointed.** The intake lane's `business-requirements-writing`
+  is now `hypothesis-brief-writing`. The hypothesis brief replaces the BRD
+  (Section 3.1), so that role does not carry over.
+  - The names kept are the ones whose role carries over: the four agent
+    files, `api-map-writing` and `tracker-writing` (the plumbing needs them),
+    and `epic-writing` and `story-contract`.
+  - `story-contract` is kept because the dependency gate parses its
+    "Blocking dependencies" format and the turn budget reads its
+    `tier:`/`size:` labels.
+- **Stubs.** No ItP agent or skill file was copied. Every definition the
+  plumbing loads exists as a `DRAFT — not yet authored` stub:
+  - agents: `intake-agent.md`, `specification-agent.md`,
+    `decompose-agent.md`, `specialist.md`
+  - skills: `api-map-writing`, `epic-writing`, `hypothesis-brief-writing`,
+    `story-contract`, `tracker-writing`
+- **Guard tests.** They make "every plumbing reference resolves inside this
+  repo" (Section 7) a CI failure rather than a runtime one.
+  - `webhook-listener/src/lane-definitions.test.ts` loads every lane's agent
+    and skills. Removing one stub makes it fail.
+  - `specialist-runner/src/framework-definitions.test.ts` builds the
+    specialist system prompt from this repo's root.
+- **Left for Phase 4 and later.** The lane prompt templates are prompt
+  content, not finalized here. `prompt-templates/intake.md` still tells the
+  agent to read a "business-requirements document", and some comments still
+  describe BRDs.
