@@ -516,6 +516,41 @@ reversible, and none of them had been applied.
 
 ---
 
+## 2026-09-25 — Dispatch creates a missing epic branch
+
+### E1. The first dispatch under an epic creates its epic branch — settled
+
+This was the owner's decision, made after the first POC dispatch failed.
+`createStoryBranch` needed the epic branch to exist already, and in the PoC
+flow nobody creates it.
+
+**What changed.** In the dispatch workflow's `createStoryBranch` activity:
+
+- If the epic branch returns 404, it is created from the head of the
+  surface's registry `ref` (for example `main`). Then the story branch is cut
+  from it as before.
+- It only ever creates the one branch the story's parent epic names, in the
+  repo and from the ref the registry records.
+- An existing epic branch is never moved.
+- If two stories under one epic dispatch together, the one that loses the
+  create race uses the branch the other created.
+- Any other failure to read the epic branch, or an unreadable registry ref,
+  fails the dispatch as before, naming the cause.
+
+**Why here, not in the specialist.** Branches are prepared before the
+specialist starts, and the runner checks out the story branch before the
+agent's first turn. Doing it in dispatch keeps the branch chain complete
+whenever a specialist runs, and cannot leave half a chain behind if a
+specialist run crashes early.
+
+**Why it differs from ItP.** ItP deliberately had a person create each epic
+branch, to avoid loose ends. PoC standards are lower by design (F2).
+
+This is a gate-logic change under `CLAUDE.md`'s rule, recorded here as the
+owner's decision.
+
+---
+
 ## Open items
 
 From `bootstrap.md` Section 8:

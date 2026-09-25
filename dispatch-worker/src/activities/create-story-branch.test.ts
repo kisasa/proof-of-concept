@@ -12,24 +12,51 @@ function jsonResponse(status: number, body: unknown): Response {
   return new Response(JSON.stringify(body), { status: status, headers: { "content-type": "application/json" } });
 }
 
+interface Routes {
+  /** The epic branch's head; a function so a test can answer differently on a second read. */
+  epicRef?: () => Response;
+  baseRef?: Response;
+  createEpic?: Response;
+  create?: Response;
+  compare?: Response;
+}
+
+interface Call {
+  readonly url: string;
+  readonly method: string;
+  readonly body: { ref?: string; sha?: string } | null;
+}
+
 /**
- * Routes by URL rather than by call order: the abandoned-work check only
- * fires on one of the two create outcomes, so a positional stub would bake
- * the very control flow under test into the fixture.
+ * Routes by URL and request body rather than by call order: whether the epic
+ * branch is created, and whether the abandoned-work check fires, each depend
+ * on an earlier answer, so a positional stub would bake the very control flow
+ * under test into the fixture.
  */
-function stubGitHub(routes: { epicRef?: Response; create?: Response; compare?: Response }) {
-  const calls: string[] = [];
+function stubGitHub(routes: Routes) {
+  const calls: Call[] = [];
   vi.stubGlobal(
     "fetch",
-    vi.fn(async (url: string) => {
-      calls.push(url);
-      if (url.includes("/git/ref/heads/")) return routes.epicRef ?? jsonResponse(200, { object: { sha: "epicsha" } });
-      if (url.includes("/git/refs")) return routes.create ?? jsonResponse(201, {});
+    vi.fn(async (url: string, init?: RequestInit) => {
+      const body = init?.body ? (JSON.parse(String(init.body)) as Call["body"]) : null;
+      calls.push({ url, method: init?.method ?? "GET", body });
+      if (url.endsWith(`/git/ref/heads/${INPUT.epicBranch}`)) {
+        return routes.epicRef ? routes.epicRef() : jsonResponse(200, { object: { sha: "epicsha" } });
+      }
+      if (url.endsWith(`/git/ref/heads/${REPO_BASE.ref}`)) return routes.baseRef ?? jsonResponse(200, { object: { sha: "mainsha" } });
+      if (url.endsWith("/git/refs")) {
+        if (body?.ref === `refs/heads/${INPUT.epicBranch}`) return routes.createEpic ?? jsonResponse(201, {});
+        return routes.create ?? jsonResponse(201, {});
+      }
       if (url.includes("/compare/")) return routes.compare ?? jsonResponse(200, { ahead_by: 0 });
       throw new Error(`unexpected request to ${url}`);
     }),
   );
   return calls;
+}
+
+function created(calls: Call[], branch: string): Call | undefined {
+  return calls.find((call) => call.method === "POST" && call.body?.ref === `refs/heads/${branch}`);
 }
 
 describe("createStoryBranch", () => {
@@ -52,7 +79,7 @@ describe("createStoryBranch", () => {
 
     await createStoryBranch("gh-token", INPUT);
 
-    expect(calls.some((url) => url.includes("/compare/"))).toBe(false);
+    expect(calls.some((call) => call.url.includes("/compare/"))).toBe(false);
   });
 
   it("stays idempotent when the branch exists but carries no work of its own", async () => {
@@ -87,5 +114,61 @@ describe("createStoryBranch", () => {
     });
 
     await expect(createStoryBranch("gh-token", INPUT)).resolves.toBeUndefined();
+  });
+
+  describe("when the epic branch does not exist yet", () => {
+    it("creates it from the registry ref's head, then cuts the story branch from it", async () => {
+      const calls = stubGitHub({ epicRef: () => jsonResponse(404, { message: "Not Found" }) });
+
+      await createStoryBranch("gh-token", INPUT);
+
+      expect(created(calls, INPUT.epicBranch)?.body?.sha).toBe("mainsha");
+      expect(created(calls, INPUT.storyBranch)?.body?.sha).toBe("mainsha");
+    });
+
+    it("never creates the epic branch when it already exists", async () => {
+      const calls = stubGitHub({});
+
+      await createStoryBranch("gh-token", INPUT);
+
+      expect(created(calls, INPUT.epicBranch)).toBeUndefined();
+      expect(calls.some((call) => call.url.endsWith(`/git/ref/heads/${REPO_BASE.ref}`))).toBe(false);
+      expect(created(calls, INPUT.storyBranch)?.body?.sha).toBe("epicsha");
+    });
+
+    it("uses the branch another dispatch just created, when it loses that race", async () => {
+      // Two stories under one epic dispatched together: both see the 404, and
+      // the second create gets "already exists". The story is cut from where
+      // the epic branch actually points, not from an assumed base sha.
+      let reads = 0;
+      const calls = stubGitHub({
+        epicRef: () => (reads++ === 0 ? jsonResponse(404, { message: "Not Found" }) : jsonResponse(200, { object: { sha: "racedsha" } })),
+        createEpic: jsonResponse(422, { message: "Reference already exists" }),
+      });
+
+      await createStoryBranch("gh-token", INPUT);
+
+      expect(created(calls, INPUT.storyBranch)?.body?.sha).toBe("racedsha");
+    });
+
+    it("fails without retrying, naming the ref, when the registry ref cannot be read", async () => {
+      stubGitHub({
+        epicRef: () => jsonResponse(404, { message: "Not Found" }),
+        baseRef: jsonResponse(404, { message: "Not Found" }),
+      });
+
+      await expect(createStoryBranch("gh-token", INPUT)).rejects.toMatchObject({
+        type: "BaseRefUnreadable",
+        nonRetryable: true,
+        message: expect.stringMatching(/registry ref "main" returned 404/),
+      });
+    });
+  });
+
+  it("still reports an epic branch that cannot be read for a reason other than a 404, without creating anything", async () => {
+    const calls = stubGitHub({ epicRef: () => jsonResponse(403, { message: "Forbidden" }) });
+
+    await expect(createStoryBranch("gh-token", INPUT)).rejects.toMatchObject({ type: "EpicBranchUnreadable", nonRetryable: true });
+    expect(calls.some((call) => call.method === "POST")).toBe(false);
   });
 });

@@ -2,11 +2,19 @@
  * Mechanical branch creation — "matching a tracker's gitBranchName field to a
  * git operation is mechanical, not the specialist's judgment to make... it's
  * the app's job." Reads the epic branch's current commit sha via the GitHub
- * REST API and creates the story branch ref from it. Never rebases or
- * re-parents an existing branch — if the story branch already exists, this
- * is idempotent (a retried activity attempt isn't an error), but it never
- * moves an existing ref, since a human or a previous attempt may already be
- * building on it.
+ * REST API and creates the story branch ref from it.
+ *
+ * If the epic branch does not exist yet, this creates it first, from the head
+ * of the surface's registry ref (`repoBase.ref`). In a PoC nobody stands the
+ * epic branch up by hand, and the first dispatch under an epic would otherwise
+ * fail on a 404 (docs/design-ledger.md, E1). The only branch ever created
+ * this way is the one the story's parent epic names, in the repo and from the
+ * ref the registry records. An existing epic branch is never moved.
+ *
+ * Never rebases or re-parents an existing branch — if the story branch
+ * already exists, this is idempotent (a retried activity attempt isn't an
+ * error), but it never moves an existing ref, since a human or a previous
+ * attempt may already be building on it.
  *
  * Only `github` is supported as a repo-base host for now — GitHub Enterprise
  * or another host would need a different API base URL, not built until an
@@ -45,20 +53,11 @@ export async function createStoryBranch(githubToken: string, input: CreateStoryB
   const owner = input.repoBase.org;
   const repo = input.repoBase.repo;
 
-  const epicRef = await githubRequest<GitHubRefResponse>(
-    githubToken,
-    "GET",
-    `/repos/${owner}/${repo}/git/ref/heads/${encodeURIComponent(input.epicBranch)}`,
-  );
-  if (epicRef.status !== 200) {
-    const message = `Could not read epic branch "${input.epicBranch}" in ${owner}/${repo}: GitHub returned ${epicRef.status}`;
-    if (isClientError(epicRef.status)) throw ApplicationFailure.nonRetryable(message, "EpicBranchUnreadable");
-    throw new Error(message);
-  }
+  const epicSha = await epicBranchSha(githubToken, input);
 
   const createResult = await githubRequest<{ message?: string }>(githubToken, "POST", `/repos/${owner}/${repo}/git/refs`, {
     ref: `refs/heads/${input.storyBranch}`,
-    sha: epicRef.json.object.sha,
+    sha: epicSha,
   });
 
   const alreadyExists = createResult.status === 422 && /already exists/i.test(createResult.json.message ?? "");
@@ -73,6 +72,56 @@ export async function createStoryBranch(githubToken: string, input: CreateStoryB
   if (alreadyExists) {
     await refuseAbandonedWork(githubToken, input);
   }
+}
+
+async function readBranchHead(githubToken: string, owner: string, repo: string, branch: string) {
+  return githubRequest<GitHubRefResponse>(githubToken, "GET", `/repos/${owner}/${repo}/git/ref/heads/${encodeURIComponent(branch)}`);
+}
+
+/**
+ * The epic branch's head sha, creating the branch from the registry ref first
+ * when it does not exist yet. A 404 is the only case that creates anything;
+ * every other failure to read the epic branch is reported as before.
+ */
+async function epicBranchSha(githubToken: string, input: CreateStoryBranchInput): Promise<string> {
+  const owner = input.repoBase.org;
+  const repo = input.repoBase.repo;
+
+  const epicRef = await readBranchHead(githubToken, owner, repo, input.epicBranch);
+  if (epicRef.status === 200) return epicRef.json.object.sha;
+  if (epicRef.status !== 404) {
+    const message = `Could not read epic branch "${input.epicBranch}" in ${owner}/${repo}: GitHub returned ${epicRef.status}`;
+    if (isClientError(epicRef.status)) throw ApplicationFailure.nonRetryable(message, "EpicBranchUnreadable");
+    throw new Error(message);
+  }
+
+  const baseRef = await readBranchHead(githubToken, owner, repo, input.repoBase.ref);
+  if (baseRef.status !== 200) {
+    const message =
+      `Epic branch "${input.epicBranch}" does not exist in ${owner}/${repo}, and it could not be created: ` +
+      `the registry ref "${input.repoBase.ref}" returned ${baseRef.status}. Check the surface record's ref.`;
+    if (isClientError(baseRef.status)) throw ApplicationFailure.nonRetryable(message, "BaseRefUnreadable");
+    throw new Error(message);
+  }
+
+  const created = await githubRequest<{ message?: string }>(githubToken, "POST", `/repos/${owner}/${repo}/git/refs`, {
+    ref: `refs/heads/${input.epicBranch}`,
+    sha: baseRef.json.object.sha,
+  });
+  if (created.status === 201) return baseRef.json.object.sha;
+
+  // Another story under the same epic may have created it a moment ago. Use
+  // whatever the branch now points at rather than assuming it is the base sha.
+  if (created.status === 422 && /already exists/i.test(created.json.message ?? "")) {
+    const raced = await readBranchHead(githubToken, owner, repo, input.epicBranch);
+    if (raced.status === 200) return raced.json.object.sha;
+  }
+
+  const message =
+    `Could not create epic branch "${input.epicBranch}" in ${owner}/${repo} from "${input.repoBase.ref}": ` +
+    `GitHub returned ${created.status} (${created.json.message ?? "no message"})`;
+  if (isClientError(created.status)) throw ApplicationFailure.nonRetryable(message, "EpicBranchCreateFailed");
+  throw new Error(message);
 }
 
 interface GitHubCompareResponse {

@@ -30,7 +30,10 @@ dispatch are merged and closed-without-merging.
    share one repo and ref. Also yields each surface's directory and
    mandatory skills for the specialist.
 3. **Create the story branch** — mechanical: reads the epic branch's current
-   commit sha via the GitHub API, creates the story branch ref from it.
+   commit sha via the GitHub API, creates the story branch ref from it. If
+   the epic branch doesn't exist yet (the first dispatch under an epic), it
+   is created first, from the head of the surface's registry `ref`. An
+   existing epic branch is never moved.
    Idempotent (a retried attempt against an already-created branch is not an
    error); never rebases or re-parents an existing branch. An existing story
    branch that already carries commits the epic branch does not have — work
