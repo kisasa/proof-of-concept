@@ -240,7 +240,7 @@ describe("parseEvent — ProjectUpdate", () => {
     vi.unstubAllGlobals();
   });
 
-  it("returns comment_added when a status update is posted (Linear has no webhook for Project comments)", async () => {
+  it("returns comment_added when a status update is posted (a second way to reply on a project)", async () => {
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue({

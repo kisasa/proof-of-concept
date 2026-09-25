@@ -14,8 +14,8 @@ you ask where it is not.
 
 ## Inputs
 
-- The tracker project: its description, attachments, and status-update
-  thread (a human's reply on a project arrives as a status update).
+- The tracker project: its description, attachments, and comment thread,
+  plus its status updates (a human may reply in either).
 - Screenshots attached to the project, used as layout references.
 - Skills: `hypothesis-brief-writing`, `epic-writing`, `tracker-writing`.
 - No codebase access in this lane. Anything you propose about repositories

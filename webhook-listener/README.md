@@ -70,7 +70,7 @@ first-pass trigger and the label(s) that mark its thread "awaiting a reply":
 
 | Lane | Entity | First pass fires on | Follow-up fires on |
 |---|---|---|---|
-| Intake | Project | `ready for intake` applied while status = Backlog | a Project Update ("status update") post while `ready for intake` is present |
+| Intake | Project | `ready for intake` applied while status = Backlog | a human comment or Project Update ("status update") post while `ready for intake` is present |
 | Specification | Issue (epic) | status enters Evaluation **and no** `spec:*` label exists yet | human comment while `spec:awaiting-architect`, `spec:awaiting-designer`, or `spec:awaiting-answers` is present |
 | specialist-dispatch | Issue (story) | status enters In Progress **and** a `surface:*` label is present | — (no follow-up state; a dispatch either starts or it doesn't) |
 
@@ -91,13 +91,11 @@ Linear-specific lane file (`src/lanes/specialist-dispatch.ts`); a workspace
 that renames that state must change it there, or dispatch silently never
 fires.
 
-Intake's follow-up is the one case that isn't a comment reply: Linear does
-not emit a webhook for comments added to a Project — only Issue/Document
-comments are webhook-visible. A Project Update post is the only
-webhook-visible signal of human activity on a project, so
-`adapters/linear.ts` maps it onto the same `comment_added` event kind
-Specification gets from real comments. `intake-agent.md` reads the
-project's status-update thread accordingly.
+Intake's follow-up fires on a project comment, which Linear sends as a
+`Comment` webhook with a `projectId`. A Project Update ("status update")
+post also counts as a reply: `adapters/linear.ts` maps both onto the same
+`comment_added` event kind, and `intake-agent.md` reads both the comment
+thread and the status updates.
 
 ## Run it locally
 

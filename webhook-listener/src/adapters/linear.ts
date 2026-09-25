@@ -17,14 +17,14 @@
  * usable signal, gated on subscribing the webhook to that team specifically
  * (a webhook scoped to "all public teams" never fires for a private team).
  *
- * Confirmed against a live payload (2026-07-16): Linear does not emit a
- * webhook for comments added to a Project — only Issue/Document comments are
- * webhook-visible. A human's follow-up on a Project (Intake's entity type)
- * therefore can't arrive as a `Comment` event; it arrives as a `ProjectUpdate`
- * ("status update") post instead, mapped onto the same comment_added
- * TrackerEvent kind below. Posting a ProjectUpdate also fires a same-tick
- * `Project`/`update` webhook (health/lastUpdateId changed) — already a no-op
- * here since that branch only reacts to label/status changes.
+ * A human's follow-up on a Project (Intake's entity type) arrives as a
+ * `Comment` event carrying a `projectId`. Linear once sent no webhook for
+ * project comments; it does now (confirmed live, 2026-09-25). A
+ * `ProjectUpdate` ("status update") post is still accepted as a follow-up
+ * too, mapped onto the same comment_added TrackerEvent kind below. Posting
+ * one also fires a same-tick `Project`/`update` webhook (health/lastUpdateId
+ * changed), which is already a no-op here since that branch only reacts to
+ * label/status changes.
  *
  * VERIFY before relying on this in production (marked inline, still
  * unconfirmed against a live payload):
@@ -372,11 +372,10 @@ export function createLinearAdapter(webhookSecret: string, agentApiKey: string):
         return null; // some other field changed (title edit, description, etc.) — not a trigger
       }
 
-      // Linear does not emit a webhook for comments on a Project — only for
-      // comments on Issues/Documents. A ProjectUpdate ("status update") post
-      // is the only webhook-visible signal that a human touched a project's
-      // discussion, so it stands in for comment_added on Projects. Confirmed
-      // against a live payload (2026-07-16): data.projectId/data.userId/
+      // A ProjectUpdate ("status update") post is a second way a human replies
+      // on a project, alongside a project comment (the Comment branch below),
+      // so it is treated as comment_added too. Confirmed against a live
+      // payload (2026-07-16): data.projectId/data.userId/
       // data.body mirror the Comment branch's field names, just without the
       // nested-object fallback Comment needs (project/user are always
       // present alongside the flat ids here, but the flat id is simpler).

@@ -12,8 +12,8 @@ Using the Linear connector, read:
 - all project attachments, including any layout screenshots
 - the full comment thread (structured: top-level comments vs. replies,
   authors, timestamps)
-- the project's status-update history. Linear has no webhook for project
-  comments, so a human's reply arrives as a status update.
+- the project's status-update history. A human may reply in a status update
+  instead of a comment.
 
 Determine your current state from the comment thread and the status updates,
 and proceed per your decision flow.
