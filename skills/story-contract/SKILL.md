@@ -50,13 +50,10 @@ Every story description has one, even when nothing blocks it.
 - **Failures:** a missing heading fails dispatch. A blocker that is not done
   sends the story back to `Todo` with a comment.
 
-### `tier:` and `size:` labels (optional)
+### No sizing
 
-- `tier:small|mid|large` is architectural weight. `size:small|medium|large` is
-  volume of work.
-- Each one multiplies the specialist's turn budget.
-- Leave them off unless a story is clearly bigger than a routine run. A
-  missing label counts as the smallest.
+Do not add `tier:` or `size:` labels, estimates, or points. A PoC doesn't size
+its stories, and every story gets the same specialist turn budget.
 
 ## What the specialist reads
 

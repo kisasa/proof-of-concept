@@ -85,8 +85,8 @@ are approved.
 | `spec:awaiting-architect` | epic | Specification | yes, a follow-up trigger | Map and stories proposed and awaiting approval |
 | `spec:resolved` | epic | Specification | no, terminal | Approved, and the stories are created |
 | `surface:<name>` | story | Specification | yes, dispatch scope and surface resolution | Where the story's work lands; the name is shared with full development at graduation |
-| `tier:small\|mid\|large` | story | Specification, optional | yes, turn budget | Architectural weight |
-| `size:small\|medium\|large` | story | Specification, optional | yes, turn budget | Volume of work |
+
+Stories get no `tier:` or `size:` labels and no estimates (see `story-contract`).
 
 The listener still routes follow-ups on `spec:awaiting-designer`. The PoC never
 applies it, because there is no designer gate.

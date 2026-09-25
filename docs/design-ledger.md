@@ -444,6 +444,44 @@ F6 still holds, and one story per epic is its default case.
 
 ---
 
+## 2026-09-25 — POC team labels; no story sizing
+
+### T1. Stories are not sized — settled
+
+This was the owner's decision.
+
+- Stories get no `tier:` or `size:` labels, and no estimates or points.
+  `story-contract`, `specification-agent`, and `tracker-writing` say so.
+- The dispatcher still parses `tier:` and `size:`, because gate logic is
+  unchanged. With neither label present, every story gets the base
+  specialist turn budget, `BASE_MAX_TURNS = 80` in
+  `webhook-listener/src/dispatch-trigger.ts`.
+- This supersedes the optional `tier:`/`size:` part of S1.
+
+### T2. The POC team's labels — settled
+
+The PoC runs in its own private Linear team, "Proof of Concept". Its
+workflow already has every status the plumbing reads: `Backlog`,
+`Evaluation`, `Todo`, and `In Progress`.
+
+Team-scoped labels were created on 2026-09-25:
+
+- **Issue labels:** `spec:awaiting-answers`, `spec:awaiting-architect`,
+  `spec:resolved`, `claim:awaiting-demo`, `claim:proven`, and `claim:failed`.
+- **Project labels:** `brief:awaiting-confirmation`, `brief:confirmed`,
+  `verdict:proven`, `verdict:disproven`, and `verdict:proven-with-caveats`.
+
+Decisions about the label set:
+
+- **`ready for intake`** is the existing workspace-wide project label, reused
+  rather than duplicated. The listener matches labels by name.
+- **`surface:<name>`** labels are created per PoC, once Intake's registry
+  names the surfaces. The workspace's existing `surface:*` labels belong to
+  other work and are not used.
+- **`spec:awaiting-designer`** and the `eval:*` labels are not created.
+
+---
+
 ## Open items
 
 From `bootstrap.md` Section 8:
@@ -501,3 +539,9 @@ Found during the bootstrap:
   conventions file is. The dispatcher passes the surface directories but
   not the registry's `conventions` path, so only the default
   `<path>CONVENTIONS.md` is found without reading the `Surfaces` document.
+- **Specialist turn budget.** With stories unsized (T1), every story gets the
+  base 80-turn budget, and a story now covers a whole claim (S1). The PoC may
+  need a larger base; runs that end at the turn limit are the signal.
+- **ItP's webhook scope.** ItP's listener has no team filter. The ItP Linear
+  webhook must stay scoped to ItP's own team, or it would act on POC team
+  events.

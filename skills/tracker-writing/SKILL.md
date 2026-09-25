@@ -36,7 +36,7 @@ Labels the plumbing reads, which keep their exact names:
 
 - `ready for intake`
 - `spec:awaiting-answers`, `spec:awaiting-architect`
-- `surface:<name>`, `tier:<value>`, `size:<value>`
+- `surface:<name>`
 
 `spec:resolved` is terminal: Specification applies it when the map and
 stories are approved, and nothing wakes on it. Any `spec:` label also keeps
