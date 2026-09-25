@@ -1,0 +1,78 @@
+{
+  "language": "typescript",
+  "app": "npx tsx main.ts",
+  "output": "cdktf.out",
+  "sendCrashReports": false,
+  "terraformProviders": [
+    "temporalio/temporalcloud@~> 0"
+  ],
+  "terraformModules": [],
+  "targetVersions": {
+    "terraform": ">=1.10.0",
+    "opentofu": ">=1.10.0"
+  },
+  "context": {
+    "aws": {
+      "region": "us-east-1",
+      "account-number": "000000000000",
+      "profile": "example"
+    },
+    "state-bucket-name": "example-tfstate",
+    "global-tags": {
+      "terraform": "true",
+      "project": "proof-of-concept",
+      "environment": "prod"
+    },
+    "domain-name": "example.com",
+    "hosted-zone-id": "Z0000000000000000000",
+    "vpc-cidr-block": "10.9.0.0/22",
+    "parameter-prefix": "/example/prod/",
+    "resource-name-prefix": "example",
+    "listener": {
+      "environment-name": "prod",
+      "subdomain": "proof-of-concept",
+      "ecr-repository-name": "proof-of-concept",
+      "image-tag": "latest",
+      "port": 8787,
+      "cpu": 512,
+      "memory": 1024,
+      "log-retention-days": 14,
+      "debounce-ms": 15000,
+      "log-level": "debug",
+      "linear-api-url": null,
+      "linear-mcp-url": null,
+      "github-mcp-url": null,
+      "product-context-paths": null,
+      "claude-model-intake": "claude-opus-5-5",
+      "claude-model-specification": "claude-opus-5-5",
+      "claude-effort": "high",
+      "allowed-team-ids": "00000000-0000-4000-8000-000000000000"
+    },
+    "specialist-sandbox": {
+      "environment-name": "prod",
+      "ecr-repository-name": "proof-of-concept-specialist",
+      "image-tag": "latest",
+      "cpu": 2048,
+      "memory": 4096,
+      "log-retention-days": 14,
+      "framework-repo": "example-org/proof-of-concept",
+      "framework-ref": "dev",
+      "claude-model": "claude-opus-5-5",
+      "claude-effort": "high"
+    },
+    "temporal": {
+      "environment-name": "prod",
+      "namespace-name": "proof-of-concept-prod",
+      "ecr-repository-name": "proof-of-concept-temporal-worker",
+      "image-tag": "latest",
+      "cpu": 512,
+      "memory": 1024,
+      "desired-count": 1,
+      "log-retention-days": 14,
+      "reviewer-email-to-github-login": {
+        "user@example.com": "example-login"
+      }
+    }
+  },
+  "projectId": "00000000-0000-4000-8000-000000000001"
+}

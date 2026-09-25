@@ -1,0 +1,46 @@
+# Copy this file to docker-compose.override.yml (gitignored — `docker
+# compose` auto-merges it with docker-compose.yml if present) and fill in
+# real values below. Only the keys actually being overridden need to be
+# listed per service — Compose merges `environment:` maps key-by-key, so
+# everything else docker-compose.yml already sets (Temporal connection info,
+# AWS/LocalStack placeholder creds, ports, etc.) is untouched.
+#
+# webhook-listener and dispatch-worker need their own real LINEAR_AGENT_API_KEY/
+# GITHUB_TOKEN — they can be the same values in both, or different bot
+# accounts, depending on how your Linear/GitHub sandbox is set up.
+
+services:
+  localstack:
+    environment:
+      # Sign up free at https://app.localstack.cloud and generate a token.
+      LOCALSTACK_AUTH_TOKEN: ""
+
+  localstack-bootstrap:
+    environment:
+      # The framework clone the specialist reads its agent and skill files
+      # from. docker-compose.yml ships a placeholder org; put yours here.
+      FRAMEWORK_REPO: ""
+      FRAMEWORK_REF: main
+      # The specialist's own credentials — baked into the task definition
+      # this script registers. See docker-compose.yml's own comment on this
+      # service for why.
+      ANTHROPIC_API_KEY: ""
+      LINEAR_AGENT_API_KEY: ""
+      GITHUB_TOKEN: ""
+
+  webhook-listener:
+    environment:
+      LINEAR_WEBHOOK_SECRET: ""
+      LINEAR_AGENT_API_KEY: ""
+      AGENT_USER_ID: ""
+      # Required — comma-separated tracker team ids this listener serves.
+      TRACKER_ALLOWED_TEAM_IDS: ""
+      GITHUB_TOKEN: ""
+      ANTHROPIC_API_KEY: ""
+
+  dispatch-worker:
+    environment:
+      GITHUB_TOKEN: ""
+      LINEAR_AGENT_API_KEY: ""
+      # Optional — e.g. {"you@example.com":"your-github-login"}
+      REVIEWER_EMAIL_TO_GITHUB_LOGIN: ""

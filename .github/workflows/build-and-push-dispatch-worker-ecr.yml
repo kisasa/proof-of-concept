@@ -1,0 +1,106 @@
+name: Build and push dispatch-worker image to ECR
+
+# Mirrors build-and-push-webhook-listener-ecr.yml's shape (see that file for the reasoning
+# behind each step) with two differences: a different ECR repository, matching
+# `temporal.ecr-repository-name` already in infrastructure/cdktf.json, and a
+# path filter — this package's build context is self-contained
+# (dispatch-worker/ only), so an unrelated webhook-listener/infra/
+# specialist-runner change should not rebuild this image.
+# Publishes on a push to main, or on demand from the Actions tab.
+#
+# Was: a push to a `dev` branch that no longer exists, plus `pull_request` with
+# `types: [closed]`. That pair predates main being the only branch — a merge
+# into main is a push to main now, so the pull_request trigger is redundant,
+# and it fired on every PR close whether merged or not.
+on:
+  push:
+    paths:
+      - "dispatch-worker/**"
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Git ref (branch, tag, or commit SHA) to build. Leave blank to build whatever ref this run was dispatched from."
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ecr-push-dispatch-worker-${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    # No merge guard needed: both triggers are already safe. A push to main has
+    # by definition been merged and required write access, and a manual
+    # dispatch is restricted to people who can run workflows. The guard this
+    # replaces was commented out, so the protection its comment described had
+    # not been running at all.
+    env:
+      ECR_REPOSITORY: proof-of-concept-temporal-worker
+    steps:
+      - name: Resolve which commit to build
+        id: resolve
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            sha="${{ github.event.pull_request.merge_commit_sha }}"
+          elif [ -n "${{ inputs.ref }}" ]; then
+            sha="${{ inputs.ref }}"
+          else
+            sha="${{ github.sha }}"
+          fi
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.resolve.outputs.sha }}
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6.2.3
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Log in to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Ensure the ECR repository exists
+        run: |
+          aws ecr describe-repositories --repository-names "$ECR_REPOSITORY" >/dev/null 2>&1 || \
+          aws ecr create-repository \
+            --repository-name "$ECR_REPOSITORY" \
+            --image-scanning-configuration scanOnPush=true
+
+      - name: Compute image tags
+        id: tags
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          short_sha="$(echo "${{ steps.resolve.outputs.sha }}" | cut -c1-12)"
+          {
+            echo "tags<<EOF"
+            echo "$REGISTRY/$ECR_REPOSITORY:$short_sha"
+            echo "$REGISTRY/$ECR_REPOSITORY:latest"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Build context is dispatch-worker/ itself, self-contained.
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: dispatch-worker
+          file: dispatch-worker/Dockerfile
+          push: true
+          tags: ${{ steps.tags.outputs.tags }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

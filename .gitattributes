@@ -1,0 +1,31 @@
+# One canonical line ending, everywhere.
+#
+# This repo is edited from Windows IDEs, Linux shells, and agents running in
+# containers. Without a rule, each of those writes its own ending and every file
+# churns wholesale between them — which matters more here than usual: a pull
+# request whose every line reads as changed cannot be reviewed, and human review
+# is the scarce resource this whole pipeline is built around.
+#
+# `eol=lf` rather than the more common bare `text=auto`: normalizing in the repo
+# but checking out native still leaves Windows working copies in CRLF, so any
+# tool that writes LF re-dirties the file. One form in the repo and in every
+# working copy removes the translation step entirely. Modern editors on Windows
+# handle LF without complaint.
+* text=auto eol=lf
+
+# Generated: collapse the diff and keep it out of language statistics. The
+# content is real and committed, but nobody reviews it line by line.
+package-lock.json linguist-generated=true -diff
+
+# Never translate these — a byte changed is a file corrupted. Design assets
+# (screens, exported mockups) are pipeline evidence and will eventually be
+# tracked even though today they sit under a gitignored examples/ directory.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
