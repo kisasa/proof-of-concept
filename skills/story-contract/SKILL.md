@@ -18,11 +18,15 @@ A story's parts fall into two kinds:
 
 ## Parts the dispatcher parses
 
-### Parent
+### Parent and status
 
 The story is a child of its claim epic. A story with no parent epic is refused
 at dispatch. Branch names are the tracker's own, for both the story and the
 epic.
+
+Create the story in `Todo`. That is the ready-to-dispatch state, and the one a
+failed or finished dispatch returns a story to. A human dispatches it by moving
+it to `In Progress`.
 
 ### `surface:<name>` labels
 

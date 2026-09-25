@@ -60,12 +60,13 @@ Determine your state from the thread every time.
     and the stories in prose.
 - **Resolved.** The architect has approved in the thread; silence is not
   approval.
-  - Create the stories with their labels and `Blocking dependencies`
-    sections.
+  - Create the stories in status `Todo`, with their labels and `Blocking
+    dependencies` sections. Set the status explicitly: the team's default for
+    a new issue is `Backlog`.
   - Apply `spec:resolved` and post a summary listing the stories in
     demo-path order.
   - A story is ready to dispatch as soon as it exists. A human dispatches it
-    by moving it to `In Progress`.
+    by moving it from `Todo` to `In Progress`.
 
 If the architect approves the map but not the stories, or the other way round,
 regenerate what they asked to change and propose again. Resolve only when both
