@@ -62,7 +62,7 @@ const WORKFLOW_TYPE = "dispatchStoryWorkflow";
  * (`tier:small` × `size:medium` → 1 × 2) would have gotten 160 turns instead
  * of 80. Not a claim these specific multipliers are correct forever — a
  * story that still runs out at its combined budget is real information (the
- * work needs more room, or Decompose under-labeled it on one or both axes),
+ * work needs more room, or Specification under-labeled it on one or both axes),
  * not a bug in this table.
  */
 const BASE_MAX_TURNS = 80;

@@ -7,7 +7,7 @@ for how a PoC runs end to end. It receives Linear webhooks, drops any whose
 entity belongs to a tracker team this deployment does not serve, routes the
 rest to the lane whose trigger matches, and runs that lane's agent function.
 
-Three lanes (Intake, Specification, Decompose) run an Anthropic activation:
+Two lanes (Intake, Specification) run an Anthropic activation:
 Claude reads and writes the tracker itself during the run, and reads the
 product codebase itself for lanes that need it — both via MCP servers
 attached to the Anthropic call. This worker declares no tools of its own for
@@ -41,7 +41,7 @@ Linear webhook ──▶ adapters/linear.ts   parse the payload into a TrackerEv
                     Claude ◀──MCP──▶ Linear   (comments, labels, child issues, and the
                          │                     one status move each checkpoint authorized)
                          ▼
-                        GitHub   (read-only — Specification and Decompose only)
+                        GitHub   (read-only — Specification only)
 ```
 
 ## The team allowlist
@@ -72,7 +72,6 @@ first-pass trigger and the label(s) that mark its thread "awaiting a reply":
 |---|---|---|---|
 | Intake | Project | `ready for intake` applied while status = Backlog | a Project Update ("status update") post while `ready for intake` is present |
 | Specification | Issue (epic) | status enters Evaluation **and no** `spec:*` label exists yet | human comment while `spec:awaiting-architect`, `spec:awaiting-designer`, or `spec:awaiting-answers` is present |
-| Decompose | Issue (epic) | `spec:resolved` applied while status = Evaluation | human comment while `eval:awaiting-answers` or `eval:awaiting-approval` is present |
 | specialist-dispatch | Issue (story) | status enters In Progress **and** a `surface:*` label is present | — (no follow-up state; a dispatch either starts or it doesn't) |
 
 Specification's first-pass trigger is the one case gated on label *absence*
@@ -97,7 +96,7 @@ not emit a webhook for comments added to a Project — only Issue/Document
 comments are webhook-visible. A Project Update post is the only
 webhook-visible signal of human activity on a project, so
 `adapters/linear.ts` maps it onto the same `comment_added` event kind
-Specification/Decompose get from real comments. `intake-agent.md` reads the
+Specification gets from real comments. `intake-agent.md` reads the
 project's status-update thread accordingly.
 
 ## Run it locally
@@ -172,7 +171,7 @@ Every delivery gets a short correlation id (`src/trace-id.ts`), carried via
 `Logger.child(traceId)` from the moment the webhook lands all the way into
 the activation it eventually causes — even across the debounce boundary,
 where the id that survives is whichever reply last reset the timer. Set
-`LOG_LEVEL=trace` and grep one id (e.g. `[decompose:a1b2c3d4]`) to reconstruct
+`LOG_LEVEL=trace` and grep one id (e.g. `[specification:a1b2c3d4]`) to reconstruct
 one request's entire path through the system.
 
 ## Files
@@ -187,7 +186,7 @@ one request's entire path through the system.
 | `src/swim-lanes.ts` | The lane registry — trigger rules paired with each lane's agent function |
 | `src/agent-scheduler.ts` | In-memory dedupe + per-entity debounce |
 | `src/agent-lane.ts` | The `AgentLaneConfig` shape every lane's config satisfies |
-| `src/lanes/{intake,specification,decompose}.ts` | Per-lane identity: agent file, skills, codebase access, templates, placeholders |
+| `src/lanes/{intake,specification}.ts` | Per-lane identity: agent file, skills, codebase access, templates, placeholders |
 | `src/lanes/specialist-dispatch.ts` | The one lane exporting a plain `LaneConfig` directly (not `AgentLaneConfig`) — its `agent` starts a Temporal workflow, not an activation |
 | `src/dispatch-trigger.ts` | Gathers a story's dispatch context, starts `dispatchStoryWorkflow` on `dispatch-worker`'s task queue, posts an error comment and moves the story back to Todo on a malformed story or a start failure — the workflow never gets a chance to run its own equivalent for either case |
 | `src/story-context.ts` | Reads a story's `branchName`, `surface:<name>` label(s), and parent epic (`id`/`branchName`) from Linear directly — this lane's own small GraphQL client, same pattern as `tracker-notifier.ts`. `parseSurfaces` extracts every `surface:`-prefixed label (a story may carry more than one); the surface vocabulary itself is open, so whether the epic actually recognizes a given surface is `dispatch-worker`'s `resolveRepoBase` to catch, not this parse |
@@ -205,7 +204,7 @@ one request's entire path through the system.
 ## State
 
 Canonical state lives in **Linear** — statuses, and the `ready for intake` /
-`spec:*` / `eval:*` labels. The worker holds only ephemeral state in memory:
+`spec:*` labels. The worker holds only ephemeral state in memory:
 webhook dedupe and per-entity debounce timers. Safe at one instance; back
 those two maps with a shared store if you need multi-instance or
 crash-survival — the function signatures in `agent-scheduler.ts` don't change.
@@ -215,7 +214,7 @@ crash-survival — the function signatures in `agent-scheduler.ts` don't change.
 - **A second issue tracker.** The write path is Linear-specific (MCP) — a
   Jira or GitHub Issues adapter would need its own MCP server to reach the
   same architecture, not just a webhook parser. (GitHub is already wired in,
-  but only as the read-only codebase MCP server for Specification/Decompose —
+  but only as the read-only codebase MCP server for Specification —
   that's a different role from GitHub Issues as a tracker.)
 - **A local e2e harness** that can exercise Claude's MCP calls, not just the
   webhook-to-dispatch path.

@@ -8,7 +8,7 @@
  *
  * Two first-pass trigger shapes exist:
  *   label_added    — fires when a specific label is newly applied (Intake's
- *                     `ready for intake`, Decompose's `spec:resolved`).
+ *                     `ready for intake`).
  *   status_entered — fires when the entity's status changes to a target value.
  *                     Specification's is the one case gated on label *absence*
  *                     (`requireLabelsAbsentPrefix`) rather than presence — its
@@ -50,9 +50,9 @@ export interface LaneConfig {
   // Follow-up fires on a human comment while any of these labels is present —
   // the thread is "active" for this lane. Empty for a lane with no reply state.
   awaitingLabels: string[];
-  // Optional extra guard so two lanes sharing a status (Specification and
-  // Decompose both live inside Evaluation) don't cross-fire on each other's
-  // awaiting labels from a differently-statused entity.
+  // Optional extra guard so a lane's awaiting labels only route replies on an
+  // entity in that lane's status, and lanes sharing a status can never
+  // cross-fire on each other's awaiting labels.
   statusRequiredForFollowUp?: string;
 }
 

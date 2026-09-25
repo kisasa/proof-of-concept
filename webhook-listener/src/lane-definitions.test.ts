@@ -17,14 +17,13 @@ beforeAll(async () => {
   // are irrelevant here, only that the modules load.
   vi.stubEnv("CLAUDE_MODEL_INTAKE", "test-model");
   vi.stubEnv("CLAUDE_MODEL_SPECIFICATION", "test-model");
-  vi.stubEnv("CLAUDE_MODEL_DECOMPOSE", "test-model");
-  const lanes = await Promise.all([import("./lanes/intake.js"), import("./lanes/specification.js"), import("./lanes/decompose.js")]);
+  const lanes = await Promise.all([import("./lanes/intake.js"), import("./lanes/specification.js")]);
   laneConfigs = lanes.map((lane) => lane.config);
 });
 
 describe("lane definitions", () => {
-  it("covers the three Anthropic-calling lanes", () => {
-    expect(laneConfigs.map((lane) => lane.name)).toEqual(["intake", "specification", "decompose"]);
+  it("covers both Anthropic-calling lanes", () => {
+    expect(laneConfigs.map((lane) => lane.name)).toEqual(["intake", "specification"]);
   });
 
   it("resolves every lane's agent file and skills inside this repository", async () => {

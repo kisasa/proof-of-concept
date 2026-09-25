@@ -44,7 +44,7 @@ becomes precedent in production code.
 
 | Path | What it is |
 |---|---|
-| `webhook-listener/` | Receives tracker webhooks, allowlists this pipeline's tracker team, and runs the Intake, Specification, and Decompose agents |
+| `webhook-listener/` | Receives tracker webhooks, allowlists this pipeline's tracker team, and runs the Intake and Specification agents |
 | `dispatch-worker/` | Temporal worker that dispatches a specialist for a story, watches its PR, and runs revision rounds |
 | `specialist-runner/` | The container a specialist runs in, one story per run |
 | `infrastructure/` | CDK for Terraform (`cdktn`) stacks for AWS and Temporal Cloud; see its README |

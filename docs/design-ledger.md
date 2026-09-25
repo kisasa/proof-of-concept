@@ -134,6 +134,8 @@ The reason: marked shortcuts become debt; unmarked ones become patterns.
 - **Settled:** no gate logic is removed from the copied plumbing until the
   trial evidence (see Open items) is written down.
 
+The Decompose row is superseded by 2026-09-25 — S1.
+
 ### F9. Conventions — settled
 
 Every PoC starts with a short `CONVENTIONS.md` at each surface root, written
@@ -255,6 +257,8 @@ These hold until the trial evidence decides which gate logic changes:
 - **Routed labels keep their names.** The routed labels and statuses are kept,
   and the `brief:`, `claim:`, and `verdict:` labels are layered on as state
   that no code reads.
+
+The first two bullets are superseded by 2026-09-25 — S1.
 
 ### B10. Label vocabulary — proposal
 
@@ -384,6 +388,59 @@ ItP's desktop skills for creating an epic or story outside the normal path
 open whether they would be re-authored later. The owner decided they are not
 needed: work enters a PoC through its hypothesis brief and demo path, and
 there is no separate path for ad-hoc epics or stories.
+
+---
+
+## 2026-09-25 — Specification writes the stories
+
+### S1. Decompose is merged into Specification — settled
+
+The owner decided this without waiting for the trial evidence, which F8
+otherwise requires before any gate logic changes. The reason: a PoC does not
+need to be guarded about how stories are written, and the separate Decompose
+step cost a full agent activation and a human approval round-trip on every
+epic.
+
+**Flow.**
+
+- Specification drafts the epic's API map and its story or stories in one
+  proposal, under one architect approval.
+- On approval, it creates the stories and applies `spec:resolved`, which is
+  now terminal: nothing wakes on it.
+- One story per epic is the default. Split only when an epic will not fit one
+  specialist run, and slice along the demo path.
+
+**Code removed:**
+
+- the Decompose lane in `webhook-listener/src/swim-lanes.ts`
+- `lanes/decompose.ts`, `prompt-templates/decompose.md`, and
+  `agents/decompose-agent.md`
+- the `CLAUDE_MODEL_DECOMPOSE` setting and its `listener.claude-model-decompose`
+  context key
+
+**Other changes:**
+
+- The Specification lane now loads `story-contract`.
+- The `eval:*` labels are no longer used.
+- Routing, dispatch, dependency gating, surface resolution, and the same-repo
+  check are unchanged.
+
+**Stories are loosened.** `story-contract` keeps only what the dispatcher
+parses: a parent epic, a `surface:` label, and a "Blocking dependencies"
+section, plus optional `tier:`/`size:` labels. The prose is reduced to what
+to build and which demo steps it makes watchable. The demo steps are the
+acceptance criteria, and the specialist's PR trace follows them.
+
+**Model.** Stories are now written on Specification's model rather than the
+cheaper model Decompose had.
+
+**What this supersedes:**
+
+- F8's Decompose row ("only when an epic exceeds one specialist run;
+  otherwise the epic dispatches directly")
+- B9's first two bullets
+
+F6 still holds, and one story per epic is its default case.
 
 ---
 

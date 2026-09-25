@@ -44,8 +44,8 @@ export async function createTemporalClient(config: TemporalClientConfig): Promis
 // repo — but validated lazily, on first real use (getClient()), not here.
 // Only one of this app's four lanes touches Temporal; a webhook-listener
 // deployed before temporal-workers exists (documented elsewhere as
-// "registered but not yet applyable") must still route Intake/Specification/
-// Decompose without crashing at startup, the same lenient posture
+// "registered but not yet applyable") must still route Intake and
+// Specification without crashing at startup, the same lenient posture
 // tracker-notifier.ts's own default export already takes for
 // LINEAR_AGENT_API_KEY.
 const envConfig: TemporalClientConfig = {

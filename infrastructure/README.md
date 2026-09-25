@@ -269,7 +269,7 @@ manage.
 | `listener.allowed-team-ids` | `<team-id>,<team-id>` | Required. Comma-separated tracker team ids, passed through as `TRACKER_ALLOWED_TEAM_IDS`; the listener rejects events from every other team and refuses to start without one |
 | `listener.log-level` | `info` | Passed through as `LOG_LEVEL` |
 | `listener.linear-api-url`, `.linear-mcp-url`, `.github-mcp-url`, `.product-context-paths` | `null` | Optional. `null` means the application's own default applies; the keys are spelled out to document that they exist |
-| `listener.claude-model-intake`, `.claude-model-specification`, `.claude-model-decompose` | `claude-opus-5-5` (intake, specification) / `claude-sonnet-5` (decompose) | Required — no code-level default. Per-lane model, passed through as `CLAUDE_MODEL_INTAKE`/`_SPECIFICATION`/`_DECOMPOSE`. Tune per engagement without a code change or redeploying the image — just this stack |
+| `listener.claude-model-intake`, `.claude-model-specification` | `claude-opus-5-5` | Required — no code-level default. Per-lane model, passed through as `CLAUDE_MODEL_INTAKE`/`_SPECIFICATION`. Tune per engagement without a code change or redeploying the image — just this stack |
 | `listener.claude-effort` | `high` | Required — no code-level default. Uniform across every lane's activation call, passed through as `CLAUDE_EFFORT`. One of `low`/`medium`/`high`/`xhigh`/`max` |
 | `specialist-sandbox.environment-name` | `prod` | Validated independently of `listener.environment-name`, though today they're the same value |
 | `specialist-sandbox.ecr-repository-name` | `proof-of-concept-specialist` | Created by its CI workflow, not here — see Prerequisites |
@@ -295,19 +295,10 @@ new deployment can copy them as-is.
 Opus goes where the judgment is expensive to redo. **Intake** writes the
 hypothesis brief and cuts the demo path into claim epics, and a mis-cut
 propagates into every epic below it. The **specialist** writes the code.
-**Specification** judges what already exists by reading real code — the
-least contract-bound work in the shaping tier, where a claim taken from a
-document rather than the repository is the likeliest error.
-
-Sonnet holds up on **Decompose** because it fills a tight output contract —
-the `story-contract` and `epic-writing` skills specify the shape of a good
-answer, so the model is completing a form rather than deciding what is true.
-
-Keeping Decompose on the cheaper model is also deliberate as a comparison
-rather than a saving: at this volume — a handful of activations per epic — the
-per-token difference is under a dollar either way, and the thing actually
-worth measuring is whether the stronger model reduces rework. Move Decompose
-up when the rework says to, not on principle.
+**Specification** judges what already exists by reading real code, then
+writes the API map and the epic's stories in one proposal. It is the least
+contract-bound work in the shaping tier, where a claim taken from a document
+rather than the repository is the likeliest error.
 
 The split is per lane precisely so it can be re-tuned per deployment without a
 code change or a new image. If a lane starts producing work the architect

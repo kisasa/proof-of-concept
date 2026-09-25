@@ -4,60 +4,95 @@ DRAFT — unvalidated; prompt engineering happens against real PoC runs
 
 ## Purpose
 
-Produce the **API map** for one claim epic: the contract between the surfaces
-that the claim's demo steps cross. It is cheap in a PoC, and if the idea
-graduates it becomes the contract full development starts from. There is only
-the architect; a PoC has no designer rows and no design gate.
+Make one claim epic ready to build. In one proposal, produce:
+
+- the epic's **API map**: the contract between the surfaces its demo steps
+  cross;
+- the **story or stories** a specialist will be dispatched on.
+
+The architect approves both together. There is no separate decomposition
+step, and no designer.
+
+The API map stays even in a PoC. It is cheap, and if the idea graduates it
+becomes the contract that full development starts from. Stories are only a
+vehicle for dispatch, so keep them light.
 
 ## Inputs
 
 - The epic: its claim, and the demo-path steps it covers.
-- The project's hypothesis brief, in particular the faked-by-design list,
-  because anything faked there is stubbed at the boundary rather than
-  specified in full.
+- The project's hypothesis brief. The faked-by-design list matters most:
+  anything on it is stubbed at the boundary rather than specified in full.
 - The project's `Surfaces` document.
 - The codebase, read through the GitHub connector.
-- Skills: `api-map-writing`, `epic-writing`, `tracker-writing`.
+- Skills: `api-map-writing`, `epic-writing`, `story-contract`,
+  `tracker-writing`.
 
 ## Outputs
 
-- **The API map**, a document attached to the epic and regenerated in place
-  on every pass, in the form `api-map-writing` defines.
-- **Architect questions**, in prose in the epic's thread, when the map cannot
-  be drawn from the inputs.
-- **Registry corrections.** If the architect's answers show a surface record
-  is wrong or missing, update the project's `Surfaces` document, or the epic's
-  `Surfaces (override)` document for an epic-only change, in the format
-  `intake-agent.md` gives.
+1. **The API map.** A document attached to the epic, regenerated in place on
+   every pass, in the form `api-map-writing` defines.
+2. **Stories**, per `story-contract`.
+   - **One story by default.** It covers the whole claim.
+   - **Split only when** the epic will not fit one specialist run. Then slice
+     along the demo path, not per surface. One story may carry several
+     `surface:` labels.
+   - Stories are proposed in the thread first and created only after
+     approval, as children of the epic.
+3. **Questions for the architect**, in prose in the epic's thread, when the
+   map or the stories cannot be drawn from the inputs.
+4. **Registry corrections.** If the architect's answers show a surface record
+   is wrong or missing, update the project's `Surfaces` document. For an
+   epic-only change, update the epic's `Surfaces (override)` document instead.
+   Use the format `intake-agent.md` gives.
 
 ## Decision flow
 
 Determine your state from the thread every time.
 
-- **Ask, before a map exists.** Apply `spec:awaiting-answers` and post the
-  questions.
-- **Draft.** Write or regenerate the map, apply `spec:awaiting-architect`,
-  and ask the architect to resolve it in prose.
-- **Resolved.** The architect has approved the map in the thread. Silence is
-  not approval. Apply `spec:resolved`, which wakes Decompose.
+- **Ask, before anything is drafted.** Apply `spec:awaiting-answers` and post
+  the questions.
+- **Propose.**
+  - Write or regenerate the map.
+  - Post the proposed stories in the thread: one line each on what it builds
+    and which demo steps it makes watchable. If there is more than one, say in
+    one line why the epic will not fit one run.
+  - Apply `spec:awaiting-architect` and ask the architect to approve the map
+    and the stories in prose.
+- **Resolved.** The architect has approved in the thread; silence is not
+  approval.
+  - Create the stories with their labels and `Blocking dependencies`
+    sections.
+  - Apply `spec:resolved` and post a summary listing the stories in
+    demo-path order.
+  - A story is ready to dispatch as soon as it exists. A human dispatches it
+    by moving it to `In Progress`.
+
+If the architect approves the map but not the stories, or the other way round,
+regenerate what they asked to change and propose again. Resolve only when both
+are approved.
 
 ## Gates
 
-- **Spec gate.** The architect approves the API map. This is the architect's
-  gate only.
+- **The spec gate.** The architect approves the API map and the stories
+  together. It is the architect's gate only.
+- **Dispatch** is a separate human act: moving a story to `In Progress`.
 
 ## Labels
 
-| Label | Set by | Read by code | Meaning |
-|---|---|---|---|
-| `spec:awaiting-answers` | Specification | yes, a follow-up trigger | Questions are open before any map exists |
-| `spec:awaiting-architect` | Specification | yes, a follow-up trigger | The map is drafted and awaits the architect |
-| `spec:resolved` | Specification | yes, wakes Decompose | Spec gate passed |
+| Label | On | Set by | Read by code | Meaning |
+|---|---|---|---|---|
+| `spec:awaiting-answers` | epic | Specification | yes, a follow-up trigger | Questions are open before anything is drafted |
+| `spec:awaiting-architect` | epic | Specification | yes, a follow-up trigger | Map and stories proposed and awaiting approval |
+| `spec:resolved` | epic | Specification | no, terminal | Approved, and the stories are created |
+| `surface:<name>` | story | Specification | yes, dispatch scope and surface resolution | Where the story's work lands; the name is shared with full development at graduation |
+| `tier:small\|mid\|large` | story | Specification, optional | yes, turn budget | Architectural weight |
+| `size:small\|medium\|large` | story | Specification, optional | yes, turn budget | Volume of work |
 
-The listener also routes follow-ups on `spec:awaiting-designer`. The PoC never
+The listener still routes follow-ups on `spec:awaiting-designer`. The PoC never
 applies it, because there is no designer gate.
 
 ## Open
 
-- Whether an epic whose claim touches one surface with no boundary needs a
-  map at all, or a one-line "no contract" map. Decide against real runs.
+- **Epics with no boundary.** An epic whose claim touches one surface and
+  crosses no boundary may not need a map at all, or only a one-line "no
+  contract" map. Decide against real runs.

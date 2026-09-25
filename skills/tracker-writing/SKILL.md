@@ -35,9 +35,13 @@ DRAFT — unvalidated; prompt engineering happens against real PoC runs
 Labels the plumbing reads, which keep their exact names:
 
 - `ready for intake`
-- `spec:awaiting-answers`, `spec:awaiting-architect`, `spec:resolved`
-- `eval:awaiting-answers`, `eval:awaiting-approval`
+- `spec:awaiting-answers`, `spec:awaiting-architect`
 - `surface:<name>`, `tier:<value>`, `size:<value>`
+
+`spec:resolved` is terminal: Specification applies it when the map and
+stories are approved, and nothing wakes on it. Any `spec:` label also keeps
+the listener from treating the epic's next move into Evaluation as a first
+look.
 
 `surface:` is identical to the receiving pipeline's, because the registry
 format is shared at graduation.

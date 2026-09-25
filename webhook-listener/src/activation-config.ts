@@ -53,7 +53,7 @@ export const activationConfig: ActivationConfig = {
   maxInputTokens: 200_000 * 0.9,
 
   // Anthropic requires max_tokens on every call — there is no "unbounded"
-  // option. Generous on purpose: Decompose's shaped output can carry several
+  // option. Generous on purpose: Specification's output can carry an API map and several
   // full story descriptions in one response, and adaptive thinking spends
   // from the same budget. VERIFY against each lane's configured model's
   // actual ceiling — exceeding it surfaces as a different, equally clear 400.

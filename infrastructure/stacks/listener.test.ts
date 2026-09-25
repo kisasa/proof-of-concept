@@ -31,7 +31,6 @@ const TEST_CONTEXT = {
     "product-context-paths": null,
     "claude-model-intake": "claude-sonnet-5",
     "claude-model-specification": "claude-sonnet-5",
-    "claude-model-decompose": "claude-sonnet-5",
     "claude-effort": "high",
     "allowed-team-ids": "team-a,team-b",
   },

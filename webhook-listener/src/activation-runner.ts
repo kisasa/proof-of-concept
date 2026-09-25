@@ -1,6 +1,6 @@
 /**
- * Generic activation runner. Every agent lane (Intake, Specification, Decompose,
- * and any lane registered after them) runs through this same function — what
+ * Generic activation runner. Every agent lane (Intake, Specification, and any
+ * lane registered after them) runs through this same function — what
  * varies is the AgentLaneConfig passed in, not the runner.
  *
  * With Claude holding direct MCP access to both the tracker (Linear) and, for
@@ -150,8 +150,8 @@ export type ToolUseRecord = { name: string; input: Record<string, unknown> };
 // later retry of the same tool actually targets the same entity as the one
 // that failed — matching on tool name alone would risk swallowing an
 // unrelated write's real failure just because some other write happened to
-// share a tool name (e.g. Decompose creating several stories with repeated
-// save_issue calls, one per story).
+// share a tool name (e.g. Specification creating several stories with
+// repeated save_issue calls, one per story).
 const TARGET_ID_KEYS = ["issueId", "projectId", "documentId", "id", "entityId"];
 
 function sameTarget(a: Record<string, unknown>, b: Record<string, unknown>): boolean {
@@ -254,7 +254,7 @@ export function findMcpError(
   return null;
 }
 
-// Observed 2026-07-20: a single decompose run against one epic posted the exact
+// Observed 2026-07-20: a single story-writing run against one epic posted the exact
 // same save_comment — same issueId, byte-identical body — twice, 219ms apart.
 // Both calls succeeded (no is_error block on either), so findMcpError had
 // nothing to flag; the only visible symptom was two duplicate comments on the

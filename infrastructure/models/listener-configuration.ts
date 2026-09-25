@@ -35,13 +35,12 @@ export interface ListenerConfiguration {
    * config instead of failing synth with a clear key name. Kept one model
    * key per lane, not a shared "claude-model" key, because
    * AgentLaneConfig.model is per-lane identity, not a uniform knob — an
-   * engagement may want Decompose on a stronger model than Intake while
+   * engagement may want Specification on a stronger model than Intake while
    * leaving the rest alone. Effort, by contrast, genuinely is uniform (see
    * activation-config.ts's own ActivationConfig.effort), so it's one key.
    */
   readonly claudeModelIntake: string;
   readonly claudeModelSpecification: string;
-  readonly claudeModelDecompose: string;
   readonly claudeEffort: string;
 
   /**
@@ -84,7 +83,6 @@ export function listenerConfigurationFromContext(node: ContextNode): ListenerCon
     productContextPaths: optionalString(node, "product-context-paths", path),
     claudeModelIntake: requireString(node, "claude-model-intake", path),
     claudeModelSpecification: requireString(node, "claude-model-specification", path),
-    claudeModelDecompose: requireString(node, "claude-model-decompose", path),
     claudeEffort: requireString(node, "claude-effort", path),
     allowedTeamIds: requireString(node, "allowed-team-ids", path),
   };

@@ -35,8 +35,9 @@ to do the work, the skill wins.
    change, and the thread.
 4. **Do the work**, only inside the directories the assignment names.
 5. **Open a pull request** from the story branch into the epic branch. Its
-   body carries an acceptance-criteria trace: one checkbox per criterion, each
-   with where it is met.
+   body carries an acceptance-criteria trace. The criteria are the demo steps
+   the story makes watchable, one checkbox per step, each with where in the
+   code it is met.
 6. **Report on the story**: what was done, what was not, and anything a
    mandatory skill asks the hand-back to carry.
 

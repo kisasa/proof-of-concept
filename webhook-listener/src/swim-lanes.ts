@@ -17,7 +17,6 @@ import type { LaneConfig } from "./swim-lane-routing.js";
 import { createActivationRunner } from "./activation-runner.js";
 import { config as intakeConfig } from "./lanes/intake.js";
 import { config as specificationConfig } from "./lanes/specification.js";
-import { config as decomposeConfig } from "./lanes/decompose.js";
 import { config as specialistDispatchConfig } from "./lanes/specialist-dispatch.js";
 
 export const lanes: LaneConfig[] = [
@@ -51,16 +50,8 @@ export const lanes: LaneConfig[] = [
     awaitingLabels: ["spec:awaiting-architect", "spec:awaiting-designer", "spec:awaiting-answers"],
     statusRequiredForFollowUp: "Evaluation",
   },
-  {
-    name: decomposeConfig.name,
-    entityType: decomposeConfig.entityType,
-    agent: createActivationRunner(decomposeConfig),
-    // First touch: the Specification Agent applying spec:resolved — an agent's
-    // own label change, not guarded by the self-comment filter (that guard
-    // covers comments only; label changes are exactly how lanes hand off).
-    firstPass: { on: "label_added", label: "spec:resolved", statusRequired: "Evaluation" },
-    awaitingLabels: ["eval:awaiting-answers", "eval:awaiting-approval"],
-    statusRequiredForFollowUp: "Evaluation",
-  },
+  // No Decompose lane. Specification writes the epic's stories alongside its
+  // API map, under one architect approval, and `spec:resolved` is terminal:
+  // nothing wakes on it (docs/design-ledger.md, S1).
   specialistDispatchConfig,
 ];

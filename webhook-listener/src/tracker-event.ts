@@ -7,7 +7,7 @@
  * Three event kinds, no more:
  *   label_added    → a human or agent applied a label. Drives first-pass activation
  *                     for lanes whose trigger is a specific label's presence
- *                     (Intake's `ready for intake`, Decompose's `spec:resolved`).
+ *                     (Intake's `ready for intake`).
  *   status_changed  → the entity moved to a new status. Drives first-pass activation
  *                     for lanes whose trigger is entering a status — Specification,
  *                     whose first touch is additionally gated on the *absence* of
@@ -16,7 +16,7 @@
  *                     lane's "awaiting" label(s) are currently present.
  *
  * `entityType` distinguishes Linear Projects (Intake's home) from Issues
- * (Specification's and Decompose's home) — the two tiers this pipeline drives
+ * (Specification's home) — the two tiers this pipeline drives
  * activation on. `entityTitle` is populated when the source payload carries it
  * directly; comment events on trackers that don't include it inline require the
  * adapter to fetch it separately (see adapters/linear.ts).

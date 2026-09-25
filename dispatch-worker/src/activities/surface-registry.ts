@@ -229,7 +229,7 @@ export function resolveSurfaces(registry: readonly SurfaceRecord[], surfaces: re
       reason:
         `No surface record for: ${missing.join(", ")}. Surfaces recorded for this project (plus any epic override): ${known}. ` +
         `The registry is the project's "${PROJECT_REGISTRY_TITLE}" document, or the epic's "${EPIC_OVERRIDE_TITLE}" document; ` +
-        `the Specification or Decompose Agent adds a surface once the architect confirms where it lives.`,
+        `the Intake or Specification Agent adds a surface once the architect confirms where it lives.`,
     };
   }
 

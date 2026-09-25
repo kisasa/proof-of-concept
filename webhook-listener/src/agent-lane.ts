@@ -22,8 +22,8 @@ export interface AgentLaneConfig {
   skills: string[];
 
   // Whether the GitHub MCP server is attached this run, alongside Linear's.
-  // Intake reasons from the brief/attachments/thread alone; Specification and
-  // Decompose read the codebase — Claude does that directly via MCP, the same
+  // Intake reasons from the brief/attachments/thread alone; Specification
+  // reads the codebase — Claude does that directly via MCP, the same
   // way it reads/writes the tracker. The app never clones or reads a repo
   // itself and has no opinion on which repo — the agent discovers and records
   // the repo base per surface itself (see specification-agent.md).
@@ -33,7 +33,7 @@ export interface AgentLaneConfig {
 
   // Template file basenames under prompt-templates/, selected by activation
   // pass. Equal for a lane with one unified template across both passes
-  // (Intake, Decompose); distinct for Specification's kickoff/reply split.
+  // (Intake); distinct for Specification's kickoff/reply split.
   templates: {
     first: string;
     followUp: string;

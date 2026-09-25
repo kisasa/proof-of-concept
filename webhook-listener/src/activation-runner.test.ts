@@ -61,7 +61,7 @@ describe("findMcpError", () => {
   });
 
   it("still flags a failed write when a later success targets a different entity", () => {
-    // Decompose creating several stories: story A's save_issue fails, story B's
+    // Specification creating several stories: story A's save_issue fails, story B's
     // save_issue (a different target) succeeds — must not swallow A's failure.
     const content = [
       toolUse("t1", "save_issue", { issueId: "PROJ-30", title: "Story A" }),
@@ -122,7 +122,7 @@ describe("findDuplicateWrites", () => {
   });
 
   it("flags the same successful write repeated against the same target (the observed real case)", () => {
-    // Real shape from a 2026-07-20 run: decompose posted the exact same
+    // Real shape from a 2026-07-20 run: a story-writing run posted the exact same
     // save_comment (same issueId, byte-identical body) twice, 219ms apart.
     // Neither call errored, so findMcpError has nothing to see here — this
     // is the check that catches it instead.

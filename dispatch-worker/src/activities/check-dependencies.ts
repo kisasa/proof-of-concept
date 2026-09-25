@@ -22,10 +22,10 @@ export interface DependencyCheckResult {
   readonly blockedBy: string[];
 }
 
-// "-" or "*" — both are valid Markdown bullet markers and Decompose isn't
+// "-" or "*" — both are valid Markdown bullet markers and the story-writing agent isn't
 // pinned to one (the References section on this exact story used "*" while
 // its own Blocking-dependencies section used "-"). The bullet marker itself
-// is optional — confirmed live (2026-08-06): Decompose rendered a single
+// is optional — confirmed live (2026-08-06): the story-writing agent rendered a single
 // blocker as a bare line ("PROJ-63 — Story: ...") with no marker at
 // all, which silently produced zero blocker ids and let checkDependencies
 // wave the story through — the specialist itself had to catch the real
@@ -39,7 +39,7 @@ const BULLET_IDENTIFIER = /^[-*]?\s*([A-Z][A-Z0-9]*-\d+)/;
  * around them: "Blocking dependencies", "Blocking-Dependencies", and
  * "blocking   dependencies" all normalize to "blockingdependencies". Formatting
  * (bold vs. heading markup, spacing, punctuation) is never the thing worth
- * matching on — Decompose doesn't render section headings identically every
+ * matching on — the story-writing agent doesn't render section headings identically every
  * time, and every occurrence of an exact-literal match against agent-produced
  * text in this file has broken once already (see below).
  */
@@ -50,11 +50,11 @@ function normalizeForComparison(text: string): string {
 /**
  * A section heading, in either markup form seen in real story descriptions:
  * `**Blocking dependencies**` (story-contract.md's own documented example)
- * or `## Blocking dependencies` (what Decompose actually renders live —
+ * or `## Blocking dependencies` (what the story-writing agent actually renders live —
  * confirmed live 2026-08-06 — matching the `## References`
  * footer convention the tracker-writing prose standard introduced the same
  * day). Accepting both, rather than picking one, is the lesson the
- * status-name mismatch just taught: match what Decompose actually produces,
+ * status-name mismatch just taught: match what the story-writing agent actually produces,
  * not the one literal string a doc happened to show.
  */
 function headingText(line: string): string | null {

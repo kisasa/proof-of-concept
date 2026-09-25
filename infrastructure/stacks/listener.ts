@@ -161,7 +161,6 @@ export class ListenerStack extends BaseStack {
       // (see env.ts's requireEnv), so this deployment must supply them.
       { name: "CLAUDE_MODEL_INTAKE", value: this.listener.claudeModelIntake },
       { name: "CLAUDE_MODEL_SPECIFICATION", value: this.listener.claudeModelSpecification },
-      { name: "CLAUDE_MODEL_DECOMPOSE", value: this.listener.claudeModelDecompose },
       { name: "CLAUDE_EFFORT", value: this.listener.claudeEffort },
 
       // Required, not an optional override: the listener refuses to start

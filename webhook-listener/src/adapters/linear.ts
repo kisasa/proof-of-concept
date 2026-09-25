@@ -4,7 +4,7 @@
  * everything downstream is tracker-agnostic.
  *
  * Two Linear entity types feed this pipeline: Projects (Intake's home) and Issues
- * (Specification's and Decompose's home, both inside the Evaluation status). Both
+ * (Specification's home, inside the Evaluation status). Both
  * fire the same three TrackerEvent kinds — label_added, status_changed,
  * comment_added — the routing layer decides which lane owns which.
  *
@@ -303,7 +303,7 @@ export function createLinearAdapter(webhookSecret: string, agentApiKey: string):
           // Nothing existed before creation — every current label is newly "added,"
           // and the entity's status is whatever it was created into. Reported as
           // label_added when labels are present so a lane whose trigger is a label
-          // (Intake, Decompose) can still fire on an entity created with it already
+          // (Intake) can still fire on an entity created with it already
           // applied; status_changed otherwise.
           const kind = currentLabels.length > 0 ? "label_added" : "status_changed";
           reqLog.trace(`${entityType} ${entityId} created — reporting ${kind}`);

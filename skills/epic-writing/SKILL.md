@@ -1,6 +1,6 @@
 ---
 name: epic-writing
-description: What a well-formed PoC claim epic looks like. Use when creating an epic from the demo path, or when reading one to specify, decompose, or build it.
+description: What a well-formed PoC claim epic looks like. Use when creating an epic from the demo path, or when reading one to specify it, write its stories, or build it.
 ---
 
 # Epic writing

@@ -34,7 +34,7 @@ describe("parseBlockingDependencyIds — bold-heading form (story-contract.md's 
   });
 });
 
-describe("parseBlockingDependencyIds — markdown-heading form (what Decompose actually renders live)", () => {
+describe("parseBlockingDependencyIds — markdown-heading form (what the story-writing agent actually renders live)", () => {
   it("extracts identifiers from a real observed description shape (## headings, ## References footer)", () => {
     const description = [
       "## Scope boundary",

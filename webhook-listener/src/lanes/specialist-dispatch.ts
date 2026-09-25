@@ -3,13 +3,13 @@
  * no skills, no model. Its `agent` starts a Temporal workflow instead of an
  * activation run (see `dispatch-trigger.ts`), which is why this exports a
  * plain `LaneConfig` directly rather than going through `AgentLaneConfig`/
- * `createActivationRunner` the way Intake/Specification/Decompose do.
+ * `createActivationRunner` the way Intake and Specification do.
  *
  * Fires when a story enters the tracker's "started" status — the
  * automated-dispatch redesign's replacement for the developer's
  * local-terminal dispatch act. Scoped to stories, not epics, via
  * `requireLabelsPresentPrefix` — both share Linear's one status workflow,
- * but only a decomposed story carries a `surface:<name>` label.
+ * but only a story carries a `surface:<name>` label.
  *
  * The literal status string below is the real Linear state name, not
  * the design vocabulary's hyphenated "In-Process" — confirmed

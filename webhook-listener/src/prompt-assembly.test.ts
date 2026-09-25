@@ -9,7 +9,7 @@ describe("buildSystemBlocks", () => {
   });
 
   it("marks only the last block — a cache breakpoint covers everything up through it, so one at the end is enough", async () => {
-    const blocks = await buildSystemBlocks("decompose-agent.md", ["epic-writing", "story-contract"]);
+    const blocks = await buildSystemBlocks("specification-agent.md", ["epic-writing", "story-contract"]);
     expect(blocks).toHaveLength(3);
     expect(blocks[0]?.cache_control).toBeUndefined();
     expect(blocks[1]?.cache_control).toBeUndefined();
