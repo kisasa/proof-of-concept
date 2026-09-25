@@ -301,6 +301,8 @@ engine. No AWS account is used.
   (`FRAMEWORK_REPO` at `FRAMEWORK_REF`), so this repo must be on GitHub at
   the ref the local stack names.
 
+Superseded by 2026-09-25 — L2.
+
 ---
 
 ## 2026-09-24 — ItP debt sweep
@@ -571,6 +573,46 @@ This is a proposal because it is agent-definition content, pending real runs.
 
 ---
 
+## 2026-09-25 — Deploying to AWS
+
+### L2. The pipeline is deployed to AWS — settled
+
+The owner decided to deploy to AWS after the first full local POC run:
+Intake, then Specification, then dispatch, then a merged PR. This supersedes
+L1's local-only operation. The local stack stays available for development.
+
+These separation requirements apply to the deploy (F2, F12):
+
+- **Configuration source.**
+  - The first deployment config is built by hand from
+    `infrastructure/cdktf.example.json`, as an untracked
+    `infrastructure/cdktf.<name>.json`.
+  - `scripts/new-deployment.py` derives from an existing deployment in this
+    repo, and there is none yet.
+  - An ItP `cdktf.*.json` is never copied: it names ItP's AWS account, state
+    bucket, and namespace.
+- **AWS account.** Use an AWS account or profile separate from ItP's, with its
+  own Terraform state bucket. The config's `aws.account-number` doubles as
+  Terraform's `allowed_account_ids` guard.
+- **Required config values.**
+  - `specialist-sandbox.framework-repo` is this repo.
+  - `specialist-sandbox.framework-ref` is a ref that exists here. The
+    template's `dev` does not exist.
+  - `listener.allowed-team-ids` is the POC team's id.
+  - `resource-name-prefix`, `parameter-prefix`, and `temporal.namespace-name`
+    do not collide with ItP's.
+- **Images.** The image workflows run only from `main`, and GitHub offers a
+  manual run only for workflows on the default branch. So `bootstrap` is
+  merged to `main` only once the repo's `AWS_*` secrets point at the PoC
+  account; until then, images are pushed to ECR by hand.
+- **Credentials.**
+  - The owner is replacing the GitHub token with a bot account scoped to PoC
+    repos. That also restores reviewer requests and revision rounds.
+  - The Linear bot is still shared with ItP ("Intent Agent") and remains an
+    open item.
+
+---
+
 ## Open items
 
 From `bootstrap.md` Section 8:
@@ -635,3 +677,6 @@ Found during the bootstrap:
 - **ItP's webhook scope.** ItP's listener has no team filter. The ItP Linear
   webhook must stay scoped to ItP's own team, or it would act on POC team
   events.
+- **Linear bot.** The PoC uses ItP's Linear bot account ("Intent Agent").
+  Its API key can write to ItP's teams, so it should be replaced by a bot that
+  is a member of the POC team only (F12).
