@@ -551,6 +551,26 @@ owner's decision.
 
 ---
 
+## 2026-09-25 — Intake creates the shortcut ledger
+
+### SL1. The shortcut ledger exists before the first dispatch — proposal
+
+On the first POC run the project had no shortcut ledger, so the specialist
+created one and flagged it.
+
+- **Where it's created.** Intake now creates the project document titled
+  `Shortcut ledger` when the brief is confirmed, alongside `Surfaces`. It has
+  the header note and the column row, and no rows yet.
+- **Its one home.** `shortcut-marking` names that document as the ledger's
+  only home. If it's missing, the specialist creates it with the same columns
+  and says so in its hand-back.
+- **What stays unchanged.** F7's format is unchanged. Concurrent id
+  allocation remains an open item.
+
+This is a proposal because it is agent-definition content, pending real runs.
+
+---
+
 ## Open items
 
 From `bootstrap.md` Section 8:

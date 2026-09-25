@@ -32,8 +32,11 @@ the faked symbol, not at the top of the file.
 
 ## Add a ledger row
 
-The shortcut ledger is a document attached to the tracker project,
-regenerated in place. Each shortcut is one row:
+The shortcut ledger is the project document titled `Shortcut ledger`,
+regenerated in place. Intake creates it, empty, when the brief is confirmed.
+If the project has none, create it with the columns below, and say in your
+hand-back that you did. Never keep shortcuts anywhere else. Each shortcut is
+one row:
 
 | Column | Content |
 |---|---|

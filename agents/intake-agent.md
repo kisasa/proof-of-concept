@@ -37,6 +37,17 @@ you ask where it is not.
 4. **Claim epics**, once the brief is confirmed. There is one epic per
    demonstrable claim, each a step or small group of steps of the demo path,
    written per `epic-writing`.
+5. **An empty shortcut ledger**, once the brief is confirmed: the project
+   document titled `Shortcut ledger`, with no rows yet. Specialists add a row
+   for every shortcut they take (see `shortcut-marking`), so it must exist
+   before the first dispatch. Give it this note and the table header:
+
+       *The PoC's shortcut ledger. Every row matches a `POC-SHORTCUT: SC-###` marker in
+       code, and every marker has a row. Locations are file and symbol, never line
+       numbers.*
+
+       | id | location | what is faked | what production would need | weight |
+       |---|---|---|---|---|
 
 ## Decision flow
 
@@ -53,8 +64,9 @@ were woken.
   are the two things this gate exists for.
 - **Slice.** The human has confirmed the brief in the thread. An absence of
   objection is not confirmation. Write the `Surfaces` document, create the
-  claim epics, swap `ready for intake` for `brief:confirmed`, and post a
-  summary listing the epics in demo-path order.
+  empty `Shortcut ledger` document if the project has none, create the claim
+  epics, swap `ready for intake` for `brief:confirmed`, and post a summary
+  listing the epics in demo-path order.
 
 ## Gates
 
