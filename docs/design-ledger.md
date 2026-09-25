@@ -492,6 +492,9 @@ Found during the bootstrap:
 - **Infrastructure tests.** They need generated provider bindings
   (`cdktn get`) before `temporal-namespace.test.ts` can load, and the package
   is not in CI.
+  Partly resolved 2026-09-25: the test run now skips that file, with a note,
+  until the bindings exist, so it passes on a fresh checkout. Typecheck still
+  needs the bindings, and the package is still not in CI.
 - **Framework ref.** The template's `framework-ref` is `dev`, and this repo
   has no `dev` branch.
 - **Conventions path.** The specialist is not told where a surface's

@@ -298,7 +298,7 @@ describe("parseEvent — Comment", () => {
       vi.fn().mockResolvedValue({
         ok: true,
         json: async () => ({
-          data: { issue: { title: "Payment visibility", state: { name: "Evaluation" }, labels: { nodes: [{ name: "eval:awaiting-answers" }] } } },
+          data: { issue: { title: "Payment visibility", state: { name: "Evaluation" }, labels: { nodes: [{ name: "spec:awaiting-answers" }] } } },
         }),
       }),
     );
@@ -314,7 +314,7 @@ describe("parseEvent — Comment", () => {
       entityTitle: "Payment visibility",
       status: "Evaluation",
       authorId: "user-abc",
-      labels: ["eval:awaiting-answers"],
+      labels: ["spec:awaiting-answers"],
     });
   });
 

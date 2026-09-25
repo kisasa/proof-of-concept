@@ -114,8 +114,9 @@ cd webhook-listener && npm ci && npm run typecheck && npm run test:unit
 ```
 
 The same applies to `dispatch-worker/`, `specialist-runner/`, and
-`infrastructure/`. Its `temporal-namespace` test needs `cdktn get` first. The
-repo-wide checks are:
+`infrastructure/`. There, `temporal-namespace.test.ts` is skipped, with a note,
+until `npx cdktn get` has generated its provider bindings. `typecheck` fails
+for the same reason until then. The repo-wide checks are:
 
 ```bash
 node --test 'scripts/*.test.mjs'

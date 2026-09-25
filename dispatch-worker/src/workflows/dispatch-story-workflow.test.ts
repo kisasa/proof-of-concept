@@ -84,6 +84,14 @@ function happyPathUpToPullRequest(dispatches?: DispatchRecord[]) {
   };
 }
 
+/**
+ * Per-test ceiling. Most tests finish in a second or two, but the first
+ * `Worker.create` in a fresh checkout bundles the workflow code from cold,
+ * which has taken well over 30 seconds on a first run and failed a test that
+ * passes on every rerun. Only a ceiling: a passing test is no slower.
+ */
+const WORKFLOW_TEST_TIMEOUT_MS = 120_000;
+
 describe("dispatchStoryWorkflow", () => {
   let testEnv: TestWorkflowEnvironment;
 
@@ -134,7 +142,7 @@ describe("dispatchStoryWorkflow", () => {
     });
 
     expect(movedStoryIds).toEqual([baseInput.storyId]);
-  }, 30_000);
+  }, WORKFLOW_TEST_TIMEOUT_MS);
 
   it("skips PR-watching and moves the story back to Todo when the specialist's run leaves no PR behind", async () => {
     const { client, nativeConnection } = testEnv;
@@ -175,7 +183,7 @@ describe("dispatchStoryWorkflow", () => {
     });
 
     expect(movedStoryIds).toEqual([baseInput.storyId]);
-  }, 30_000);
+  }, WORKFLOW_TEST_TIMEOUT_MS);
 
   it("runs the full sequence and returns the specialist's outcome", async () => {
     const { client, nativeConnection } = testEnv;
@@ -255,7 +263,7 @@ describe("dispatchStoryWorkflow", () => {
       "requestPullRequestReviewer",
       "awaitPullRequestOutcome",
     ]);
-  }, 30_000);
+  }, WORKFLOW_TEST_TIMEOUT_MS);
 
   it("posts a dispatch-failed comment naming the real cause, moves the story back to Todo, then still fails the workflow (never silent)", async () => {
     const { client, nativeConnection } = testEnv;
@@ -305,7 +313,7 @@ describe("dispatchStoryWorkflow", () => {
 
     expect(postedMessages).toEqual(['Could not read epic branch "proj-10-refunds" in example-org/example-api: GitHub returned 404']);
     expect(movedStoryIds).toEqual([baseInput.storyId]);
-  }, 30_000);
+  }, WORKFLOW_TEST_TIMEOUT_MS);
 
   it("moves the story back to Todo when the PR is closed without merging", async () => {
     const { client, nativeConnection } = testEnv;
@@ -345,7 +353,7 @@ describe("dispatchStoryWorkflow", () => {
     // retreats a story for. A closed PR is also where the specialist's
     // "close it, reshape the story, run it again" recommendation lands.
     expect(movedStoryIds).toEqual([baseInput.storyId]);
-  }, 30_000);
+  }, WORKFLOW_TEST_TIMEOUT_MS);
 
   it("dispatches a revision round on a change request, with its own turn budget, then resumes watching past that review", async () => {
     const { client, nativeConnection } = testEnv;
@@ -410,7 +418,7 @@ describe("dispatchStoryWorkflow", () => {
     expect(notices[0]).toContain("Revision round 1 of 3");
     expect(edits[0]).toContain("finished");
     expect(edits[0]).toContain("2 of 3 rounds remaining");
-  }, 30_000);
+  }, WORKFLOW_TEST_TIMEOUT_MS);
 
   it("stops dispatching at the round cap, says so on the PR, and keeps watching for merge", async () => {
     const { client, nativeConnection } = testEnv;
@@ -468,7 +476,7 @@ describe("dispatchStoryWorkflow", () => {
     const exhausted = notices.filter((body) => body.includes("No revision rounds remaining"));
     expect(exhausted).toHaveLength(1);
     expect(exhausted[0]).toContain("still being watched for merge or close");
-  }, 30_000);
+  }, WORKFLOW_TEST_TIMEOUT_MS);
 
   it("says on the PR that revision requests are off when the mover maps to no GitHub login", async () => {
     const { client, nativeConnection } = testEnv;
@@ -511,5 +519,5 @@ describe("dispatchStoryWorkflow", () => {
     expect(notices[0]).toContain("Revision requests are off for this story");
     expect(notices[0]).toContain("Example User");
     expect(watches[0]?.reviewerLogin).toBeNull();
-  }, 30_000);
+  }, WORKFLOW_TEST_TIMEOUT_MS);
 });
