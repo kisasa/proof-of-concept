@@ -39,6 +39,8 @@ set -eu
 : "${GITHUB_TOKEN:?GITHUB_TOKEN must be set in docker-compose.override.yml}"
 : "${FRAMEWORK_REPO:?FRAMEWORK_REPO must be set in docker-compose.yml}"
 : "${FRAMEWORK_REF:?FRAMEWORK_REF must be set in docker-compose.yml}"
+: "${CLAUDE_MODEL:?CLAUDE_MODEL must be set in docker-compose.yml}"
+: "${CLAUDE_EFFORT:?CLAUDE_EFFORT must be set in docker-compose.yml}"
 
 ENDPOINT="${AWS_ENDPOINT_URL:-http://localstack:4566}"
 REGION="${AWS_REGION:-us-east-1}"
@@ -76,7 +78,9 @@ CONTAINER_DEFINITIONS=$(cat <<EOF
     {"name": "LINEAR_AGENT_API_KEY", "value": "${LINEAR_AGENT_API_KEY}"},
     {"name": "GITHUB_TOKEN", "value": "${GITHUB_TOKEN}"},
     {"name": "FRAMEWORK_REPO", "value": "${FRAMEWORK_REPO}"},
-    {"name": "FRAMEWORK_REF", "value": "${FRAMEWORK_REF}"}
+    {"name": "FRAMEWORK_REF", "value": "${FRAMEWORK_REF}"},
+    {"name": "CLAUDE_MODEL", "value": "${CLAUDE_MODEL}"},
+    {"name": "CLAUDE_EFFORT", "value": "${CLAUDE_EFFORT}"}
   ]
 }]
 EOF

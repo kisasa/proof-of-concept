@@ -124,6 +124,11 @@ services:
       # branch when testing framework changes locally.
       FRAMEWORK_REPO: example-org/proof-of-concept
       FRAMEWORK_REF: main
+      # specialist-runner's claude-config.ts requires both, with no code-level
+      # default. In production, specialist-sandbox.ts bakes them into the task
+      # definition; locally, this script does.
+      CLAUDE_MODEL: claude-opus-5-5
+      CLAUDE_EFFORT: high
     volumes:
       - ./scripts/localstack-bootstrap.sh:/bootstrap.sh:ro
       # A host bind mount, not a named volume: env_file (below, on
@@ -144,6 +149,11 @@ services:
       GITHUB_MCP_URL: ""
       TEST_STAGE: ""
       PRODUCT_CONTEXT_PATHS: ""
+      # Required, with no code-level default (lanes/*.ts and
+      # activation-config.ts). The same values as infrastructure/cdktf.example.json.
+      CLAUDE_MODEL_INTAKE: claude-opus-5-5
+      CLAUDE_MODEL_SPECIFICATION: claude-opus-5-5
+      CLAUDE_EFFORT: high
       TEMPORAL_HOST: temporal:7233
       TEMPORAL_NAMESPACE: default
       TEMPORAL_TASK_QUEUE: dispatch-task-queue
