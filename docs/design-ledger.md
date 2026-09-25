@@ -271,6 +271,8 @@ The first two bullets are superseded by 2026-09-25 — S1.
 Each PoC-only gate has its own prefix, so no PoC label changes meaning after
 graduation.
 
+The `claim:` labels are superseded by 2026-09-25 — T4.
+
 ### B11. `CLAUDE.md` is committed — settled
 
 The copied `.gitignore` ignored `CLAUDE.md`, as ItP's does. This repo commits
@@ -480,6 +482,8 @@ Decisions about the label set:
   other work and are not used.
 - **`spec:awaiting-designer`** and the `eval:*` labels are not created.
 
+The `claim:` issue labels are superseded by 2026-09-25 — T4.
+
 ### T3. Specialist turn budget is 400, and the wait for a run is 12 hours — settled
 
 The owner asked for a very high cap, and chose 400.
@@ -497,6 +501,18 @@ The owner asked for a very high cap, and chose 400.
   replay of workflows already running. None were running when this changed.
 - **Unchanged.** A revision round keeps its own budget of 25 turns
   (`REVISION_MAX_TURNS`), because that one is a deliberate scope fence.
+
+### T4. No claim labels — settled
+
+This was the owner's decision. The three `claim:` labels (`awaiting-demo`,
+`proven`, `failed`) were retired in the POC team on 2026-09-25. Retiring is
+reversible, and none of them had been applied.
+
+- The demo gate still records pass or fail on the epic, as F8 requires. It
+  does so in the epic's demo record document, whose Result section opens with
+  **Proven** or **Failed**.
+- `demo-gate` and `tracker-writing` no longer mention the labels.
+- The remaining PoC-only labels are the `brief:` and `verdict:` labels.
 
 ---
 

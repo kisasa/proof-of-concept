@@ -50,7 +50,6 @@ PoC-only labels, which are proposals and unsettled, and which no plumbing
 reads:
 
 - `brief:awaiting-confirmation`, `brief:confirmed` (project)
-- `claim:awaiting-demo`, `claim:proven`, `claim:failed` (epic)
 - `verdict:proven`, `verdict:disproven`, `verdict:proven-with-caveats`
   (project)
 
