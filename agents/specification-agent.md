@@ -63,8 +63,11 @@ Determine your state from the thread every time.
   - Create the stories in status `Todo`, with their labels and `Blocking
     dependencies` sections. Set the status explicitly: the team's default for
     a new issue is `Backlog`.
+  - Check your work. Re-read each story you just created, and confirm it has
+    its parent epic, its `surface:` label, and status `Todo`. Fix anything that
+    is not, then continue. Touch only the stories this run created.
   - Apply `spec:resolved` and post a summary listing the stories in
-    demo-path order.
+    demo-path order, each with its status.
   - A story is ready to dispatch as soon as it exists. A human dispatches it
     by moving it from `Todo` to `In Progress`.
 
