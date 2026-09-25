@@ -292,7 +292,7 @@ domain-specific `retry: { maximumAttempts: 3 }` in the workflow's
 `proxyActivities` call, so a persistent failure against Linear/GitHub/AWS
 surfaces as a failed workflow rather than hammering those APIs for hours.
 `awaitPullRequestOutcome` gets its own, much longer `startToCloseTimeout`
-(14 days, vs. `awaitSpecialistTask`'s 4 hours) — a PR can sit unreviewed for
+(14 days, vs. `awaitSpecialistTask`'s 12 hours) — a PR can sit unreviewed for
 days in a way an ECS task never sits unfinished.
 
 ## Working with it

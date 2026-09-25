@@ -480,6 +480,24 @@ Decisions about the label set:
   other work and are not used.
 - **`spec:awaiting-designer`** and the `eval:*` labels are not created.
 
+### T3. Specialist turn budget is 400, and the wait for a run is 12 hours — settled
+
+The owner asked for a very high cap, and chose 400.
+
+- **The cap.** `BASE_MAX_TURNS` in `webhook-listener/src/dispatch-trigger.ts`
+  is 400, up from ItP's 80. Stories are unsized (T1), so every story gets
+  exactly this. The cap is a backstop against a runaway run, not a scope
+  fence.
+- **The wait.** `awaitSpecialistTask`'s `startToCloseTimeout` in
+  `dispatch-story-workflow.ts` goes from 4 hours to 12 hours. A 400-turn run
+  must not outlast the workflow's wait for it. If it did, the workflow would
+  give up and move the story back to `Todo` while the container kept working.
+  The one-minute heartbeat still catches a hung run.
+- **In-flight workflows.** Changing a workflow's activity options affects
+  replay of workflows already running. None were running when this changed.
+- **Unchanged.** A revision round keeps its own budget of 25 turns
+  (`REVISION_MAX_TURNS`), because that one is a deliberate scope fence.
+
 ---
 
 ## Open items
@@ -542,6 +560,7 @@ Found during the bootstrap:
 - **Specialist turn budget.** With stories unsized (T1), every story gets the
   base 80-turn budget, and a story now covers a whole claim (S1). The PoC may
   need a larger base; runs that end at the turn limit are the signal.
+  Resolved 2026-09-25 — see T3.
 - **ItP's webhook scope.** ItP's listener has no team filter. The ItP Linear
   webhook must stay scoped to ItP's own team, or it would act on POC team
   events.

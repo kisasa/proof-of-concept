@@ -76,7 +76,7 @@ describe("createDispatchTrigger", () => {
           surfaces: ["backend"],
           storyBranch: "story/story-1",
           epicBranch: "epic/epic-1",
-          maxTurns: 80,
+          maxTurns: 400,
           mover: MOVER,
         },
       ],
@@ -97,7 +97,7 @@ describe("createDispatchTrigger", () => {
 
     expect(start).toHaveBeenCalledWith(
       "dispatchStoryWorkflow",
-      expect.objectContaining({ args: [expect.objectContaining({ maxTurns: 160 })] }),
+      expect.objectContaining({ args: [expect.objectContaining({ maxTurns: 800 })] }),
     );
   });
 
@@ -113,7 +113,7 @@ describe("createDispatchTrigger", () => {
 
     expect(start).toHaveBeenCalledWith(
       "dispatchStoryWorkflow",
-      expect.objectContaining({ args: [expect.objectContaining({ maxTurns: 320 })] }),
+      expect.objectContaining({ args: [expect.objectContaining({ maxTurns: 1600 })] }),
     );
   });
 
@@ -129,7 +129,7 @@ describe("createDispatchTrigger", () => {
 
     expect(start).toHaveBeenCalledWith(
       "dispatchStoryWorkflow",
-      expect.objectContaining({ args: [expect.objectContaining({ maxTurns: 160 })] }),
+      expect.objectContaining({ args: [expect.objectContaining({ maxTurns: 800 })] }),
     );
   });
 
@@ -207,25 +207,25 @@ describe("createDispatchTrigger", () => {
 });
 
 describe("resolveMaxTurns", () => {
-  it("lands on the base 80 when neither label is recognized", () => {
-    expect(resolveMaxTurns(null, null)).toBe(80);
+  it("lands on the base 400 when neither label is recognized", () => {
+    expect(resolveMaxTurns(null, null)).toBe(400);
   });
 
   it("applies the tier multiplier alone when size is unrecognized", () => {
-    expect(resolveMaxTurns("mid", null)).toBe(160);
-    expect(resolveMaxTurns("large", null)).toBe(320);
+    expect(resolveMaxTurns("mid", null)).toBe(800);
+    expect(resolveMaxTurns("large", null)).toBe(1600);
   });
 
   it("applies the size multiplier alone when tier is unrecognized", () => {
-    expect(resolveMaxTurns(null, "medium")).toBe(160);
-    expect(resolveMaxTurns(null, "large")).toBe(320);
+    expect(resolveMaxTurns(null, "medium")).toBe(800);
+    expect(resolveMaxTurns(null, "large")).toBe(1600);
   });
 
   it("compounds both multipliers — a real observed shape: tier:small × size:medium", () => {
-    expect(resolveMaxTurns("small", "medium")).toBe(160);
+    expect(resolveMaxTurns("small", "medium")).toBe(800);
   });
 
   it("compounds to the largest budget when both axes are elevated", () => {
-    expect(resolveMaxTurns("large", "large")).toBe(1280);
+    expect(resolveMaxTurns("large", "large")).toBe(6400);
   });
 });

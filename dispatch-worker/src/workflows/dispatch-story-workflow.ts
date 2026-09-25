@@ -90,9 +90,12 @@ const {
 // ... since sessions do not time out on their own" applies here too, one
 // level up: this activity has to be allowed to run at least that long, and
 // it heartbeats every poll so Temporal doesn't mistake a long-but-alive run
-// for a hung one.
+// for a hung one. 12 hours because a PoC story's turn budget is 400
+// (dispatch-trigger.ts): a run that long must not outlast this wait, or the
+// workflow gives up and moves the story to Todo while the container is
+// still working. Heartbeats still catch a hung run within a minute.
 const { awaitSpecialistTask } = proxyActivities<DispatchActivities>({
-  startToCloseTimeout: "4 hours",
+  startToCloseTimeout: "12 hours",
   heartbeatTimeout: "1 minute",
 });
 

@@ -54,18 +54,21 @@ const WORKFLOW_TYPE = "dispatchStoryWorkflow";
  * the two axes measure different things and don't move together.
  *
  * BASE_MAX_TURNS is the floor a story with neither label (or an unrecognized
- * value on both) gets — same number the old flat default used, not a new
- * number pulled from nowhere. Each label independently multiplies that floor;
+ * value on both) gets. In this PoC pipeline that is every story: stories are
+ * not sized (docs/design-ledger.md, T1, T3), and each one covers a whole
+ * claim, so the floor is set deliberately high at 400. The turn cap is a
+ * backstop against a runaway run, not a scope fence. Each label independently
+ * multiplies that floor;
  * a story elevated on both axes compounds rather than being capped at
  * whichever axis is worse, since tier and size are read as genuinely
  * independent cost signals, not two votes on one "difficulty" score. That story
- * (`tier:small` × `size:medium` → 1 × 2) would have gotten 160 turns instead
- * of 80. Not a claim these specific multipliers are correct forever — a
+ * (`tier:small` × `size:medium` → 1 × 2) would have gotten twice the floor.
+ * Not a claim these specific multipliers are correct forever — a
  * story that still runs out at its combined budget is real information (the
  * work needs more room, or Specification under-labeled it on one or both axes),
  * not a bug in this table.
  */
-const BASE_MAX_TURNS = 80;
+const BASE_MAX_TURNS = 400;
 
 const TIER_MULTIPLIER: Record<Tier, number> = {
   small: 1,
