@@ -54,7 +54,7 @@ dispatch-specialist.ts`'s per-dispatch `RunTask` container overrides;
 `FRAMEWORK_REPO`/`FRAMEWORK_REF` don't — they're baked into the specialist
 sandbox's own task definition instead (`infrastructure/stacks/
 specialist-sandbox.ts`, from `specialist-sandbox.framework-repo`/
-`.framework-ref` in `cdktf.json`), since which agents/skills repo and ref a
+`.framework-ref` in `cdktf.POCINIT.json`), since which agents/skills repo and ref a
 specialist run uses is a deployment-level setting, not something that varies
 per story:
 

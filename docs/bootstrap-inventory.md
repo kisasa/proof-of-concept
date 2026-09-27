@@ -395,7 +395,7 @@ configuration value, so it may belong in Phase 2.
 **C8. `infrastructure` does not pass cleanly even in ItP** (§6). Is the
 Phase 1 target "35/35 with 1 unloadable file, typecheck failing", or should
 Phase 1 run `cdktn get` first? That step needs network access and a
-`cdktf.json`; the example template would do.
+`cdktf.POCINIT.json`; the example template would do.
 
 ---
 

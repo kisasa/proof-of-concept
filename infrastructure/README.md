@@ -192,7 +192,7 @@ gitignored, same as `cdktn.out/` — regenerate it after a fresh clone, same as 
 
 ## Configuration
 
-**`cdktf.json` is not in the repository.** It carries one deployment's identity — AWS account,
+**`cdktf.POCINIT.json` is not in the repository.** It carries one deployment's identity — AWS account,
 state bucket, domain, hosted zone, SSM prefix, reviewer table — which is engagement-specific, not
 framework material, so it is gitignored. Start from the committed template:
 
@@ -230,7 +230,7 @@ runs: a bucket in the wrong account is recoverable, a parameter store in the wro
 with this deployment's secrets is not.
 
 Each deployment's config is kept beside the others under its own name. `cdktn` only ever reads
-`cdktf.json`, so a run means standing one in under that name and moving it back after:
+`cdktf.POCINIT.json`, so a run means standing one in under that name and moving it back after:
 
 ```bash
 mv cdktf.PROJ0903.json cdktf.json && npm run synth && npm run deploy; mv cdktf.json cdktf.PROJ0903.json
@@ -429,7 +429,7 @@ Honest about what this does not do.
   application by HMAC signature verification, not by source address. An IP allowlist is available as
   a knob but would be a second thing to keep current, failing closed and silently when the tracker's
   ranges change.
-- **One environment per run.** Nothing in the code assumes one environment; only `cdktf.json` does,
+- **One environment per run.** Nothing in the code assumes one environment; only `cdktf.POCINIT.json` does,
   because that is the one filename `cdktn` reads. So each deployment keeps its own
   `cdktf.<NAME>.json` and is renamed into place for the duration of a run —
   `scripts/new-deployment.py` generates one and prints that dance, but does not perform it, and
