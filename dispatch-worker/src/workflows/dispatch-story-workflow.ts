@@ -7,6 +7,12 @@
  * now; "trigger CI" is a no-op here since it already runs automatically on
  * the PR's own push.
  *
+ * In this PoC pipeline the specialist's PR merges into the epic branch as
+ * soon as it exists, and the epic branch's own PR into the base branch opens
+ * automatically (docs/design-ledger.md, E2). Only when GitHub refuses the
+ * merge does the workflow fall back to the reviewer path below: request the
+ * reviewer-of-record, watch for merge, and run revision rounds.
+ *
  * No outcome label (removed 2026-08-07): a
  * PR's existence *is* the outcome. The specialist's own comment on the story
  * carries the why when there isn't one (waiting on a dependency, blocked,
@@ -81,6 +87,8 @@ const {
   editPullRequestNotice,
   postDispatchFailed,
   moveStoryToTodo,
+  mergeStoryPullRequest,
+  ensureEpicPullRequest,
 } = proxyActivities<DispatchActivities>({
   startToCloseTimeout: "5 minutes",
   retry: { maximumAttempts: 3 },
@@ -125,6 +133,8 @@ export interface DispatchStoryWorkflowResult {
   readonly blockedBy?: string[];
   /** Only set when `outcome` is "complete" — the PR this story's dispatch was watching. */
   readonly pullRequest?: { readonly number: number; readonly url: string; readonly merged: boolean };
+  /** Set when the story merged and the epic branch's PR into the base branch is open. */
+  readonly epicPullRequest?: { readonly number: number; readonly url: string };
 }
 
 export async function dispatchStoryWorkflow(input: DispatchStoryWorkflowInput): Promise<DispatchStoryWorkflowResult> {
@@ -183,6 +193,18 @@ export async function dispatchStoryWorkflow(input: DispatchStoryWorkflowInput): 
 
     openPullRequest = { number: pr.number, url: pr.url, repoBase: repoBase };
 
+    // The PoC path: merge into the epic branch now, and make sure the epic's
+    // PR into the base branch is open. The reviewer path below runs only
+    // when GitHub refuses the merge.
+    if (await mergeStoryPullRequest(repoBase, pr.number)) {
+      const epicPullRequest = await ensureEpicPullRequest(repoBase, input.epicId, input.epicBranch);
+      return {
+        outcome: "complete",
+        pullRequest: { number: pr.number, url: pr.url, merged: true },
+        ...(epicPullRequest ? { epicPullRequest: epicPullRequest } : {}),
+      };
+    }
+
     const reviewerLogin = await requestPullRequestReviewer(repoBase, pr.number, input.mover);
     if (!reviewerLogin) {
       // Said once, now, rather than discovered later by a developer whose
@@ -210,9 +232,11 @@ export async function dispatchStoryWorkflow(input: DispatchStoryWorkflowInput): 
       });
 
       if (watch.outcome === "merged") {
+        const epicPullRequest = await ensureEpicPullRequest(repoBase, input.epicId, input.epicBranch);
         return {
           outcome: "complete",
           pullRequest: { number: pr.number, url: pr.url, merged: true },
+          ...(epicPullRequest ? { epicPullRequest: epicPullRequest } : {}),
         };
       }
 

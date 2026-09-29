@@ -58,15 +58,24 @@ dispatch are merged and closed-without-merging.
    `{ outcome: "no-pr" }` — waiting on a dependency, blocked, still thinking,
    or crashed all look the same to this workflow; the specialist's own
    comment on the story is the record of which one it was.
-7. **Request the reviewer, then watch the PR** — requests the
+7. **Merge it into the epic branch, and open the epic PR.** The story's PR
+   merges straight away, with a merge commit so the story branch stays an
+   ancestor of the epic branch. Then the epic branch's PR into the
+   surface's base branch (the registry `ref`) is opened if none is open yet;
+   later stories just add commits to it. That epic PR is where a person
+   reviews, tests, and merges. Returns `{ outcome: "complete" }`. If GitHub
+   refuses the merge (a conflict, a branch protection rule), the workflow
+   says why on the PR and falls back to step 8.
+8. **Fallback: request the reviewer, then watch the PR** — requests the
    reviewer-of-record (below) and polls the PR (re-reading its current head
    sha every poll, so a force-push can't leave it tracking a stale commit),
    heartbeating a CI/status summary each poll, until it is merged, closed
    without merging, or the reviewer-of-record submits a new "request
    changes" review. Merged or closed posts the final "PR merged" / "PR closed
    without merging" comment on the story and returns
-   `{ outcome: "complete" }`; closed also moves the story back to Todo. A
-   change request starts a revision round (below), then watching resumes.
+   `{ outcome: "complete" }`; merged also opens the epic PR, and closed
+   moves the story back to Todo. A change request starts a revision round
+   (below), then watching resumes.
 
 ## Revision rounds
 

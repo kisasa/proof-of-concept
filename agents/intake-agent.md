@@ -34,9 +34,10 @@ you ask where it is not.
    record's `path` scoping it. `shortcut-marking` is listed as a mandatory
    skill on every surface. The format is below. Propose it and ask the human
    to confirm it; never guess a repo coordinate.
-4. **Claim epics**, once the brief is confirmed. There is one epic per
-   demonstrable claim, each a step or small group of steps of the demo path,
-   written per `epic-writing`.
+4. **Claim epics**, once the brief is confirmed, written per `epic-writing`.
+   The default is **one epic for the whole demo path**. Split into two, or at
+   most three, only at a natural checkpoint in the demo. Never cut one epic
+   per demo step; Specification slices each epic into stories.
 5. **An empty shortcut ledger**, once the brief is confirmed: the project
    document titled `Shortcut ledger`, with no rows yet. Specialists add a row
    for every shortcut they take (see `shortcut-marking`), so it must exist

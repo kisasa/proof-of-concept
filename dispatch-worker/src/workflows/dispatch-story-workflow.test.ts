@@ -67,6 +67,9 @@ interface WatchRecord {
  * Everything up to and including the PR existing, which every revision test
  * needs identically — the interesting assertions all live after that point.
  * Pass a `dispatches` array to record what each dispatch was asked for.
+ *
+ * GitHub refuses the auto-merge here, so every test built on this fixture
+ * exercises the reviewer fallback. The auto-merge path has its own test.
  */
 function happyPathUpToPullRequest(dispatches?: DispatchRecord[]) {
   return {
@@ -81,6 +84,8 @@ function happyPathUpToPullRequest(dispatches?: DispatchRecord[]) {
     awaitSpecialistTask: async () => {},
     deleteSpecialistProgressComment: async () => {},
     findPullRequest: async () => ({ number: 42, url: PR_URL }),
+    mergeStoryPullRequest: async () => false,
+    ensureEpicPullRequest: async () => null,
   };
 }
 
@@ -185,7 +190,7 @@ describe("dispatchStoryWorkflow", () => {
     expect(movedStoryIds).toEqual([baseInput.storyId]);
   }, WORKFLOW_TEST_TIMEOUT_MS);
 
-  it("runs the full sequence and returns the specialist's outcome", async () => {
+  it("merges the story's PR into the epic branch and opens the epic PR, with no reviewer wait", async () => {
     const { client, nativeConnection } = testEnv;
     const taskQueue = "test-full-sequence";
     const calls: string[] = [];
@@ -224,14 +229,16 @@ describe("dispatchStoryWorkflow", () => {
           calls.push("findPullRequest");
           return { number: 42, url: "https://github.com/example-org/example-api/pull/42" };
         },
-        requestPullRequestReviewer: async () => {
-          calls.push("requestPullRequestReviewer");
-          return "example-reviewer";
+        mergeStoryPullRequest: async () => {
+          calls.push("mergeStoryPullRequest");
+          return true;
         },
-        awaitPullRequestOutcome: async () => {
-          calls.push("awaitPullRequestOutcome");
-          return { outcome: "merged" };
+        ensureEpicPullRequest: async (_repoBase: unknown, epicId: string, epicBranch: string) => {
+          calls.push(`ensureEpicPullRequest:${epicId}:${epicBranch}`);
+          return { number: 7, url: "https://github.com/example-org/example-api/pull/7" };
         },
+        requestPullRequestReviewer: unexpectedCall("requestPullRequestReviewer"),
+        awaitPullRequestOutcome: unexpectedCall("awaitPullRequestOutcome"),
         postPullRequestNotice: unexpectedCall("postPullRequestNotice"),
         editPullRequestNotice: unexpectedCall("editPullRequestNotice"),
         postDispatchFailed: unexpectedCall("postDispatchFailed"),
@@ -248,6 +255,7 @@ describe("dispatchStoryWorkflow", () => {
       expect(result).toEqual({
         outcome: "complete",
         pullRequest: { number: 42, url: "https://github.com/example-org/example-api/pull/42", merged: true },
+        epicPullRequest: { number: 7, url: "https://github.com/example-org/example-api/pull/7" },
       });
     });
 
@@ -260,9 +268,55 @@ describe("dispatchStoryWorkflow", () => {
       "awaitSpecialistTask",
       "deleteSpecialistProgressComment",
       "findPullRequest",
-      "requestPullRequestReviewer",
-      "awaitPullRequestOutcome",
+      "mergeStoryPullRequest",
+      `ensureEpicPullRequest:${baseInput.epicId}:${baseInput.epicBranch}`,
     ]);
+  }, WORKFLOW_TEST_TIMEOUT_MS);
+
+  it("falls back to the reviewer path when GitHub refuses the merge, and still opens the epic PR once a person merges", async () => {
+    const { client, nativeConnection } = testEnv;
+    const taskQueue = "test-merge-refused";
+    const calls: string[] = [];
+
+    const worker = await Worker.create({
+      connection: nativeConnection,
+      taskQueue: taskQueue,
+      workflowsPath: WORKFLOWS_PATH,
+      activities: {
+        ...happyPathUpToPullRequest(),
+        mergeStoryPullRequest: async () => {
+          calls.push("mergeStoryPullRequest");
+          return false;
+        },
+        requestPullRequestReviewer: async () => {
+          calls.push("requestPullRequestReviewer");
+          return "example-reviewer";
+        },
+        awaitPullRequestOutcome: async () => {
+          calls.push("awaitPullRequestOutcome");
+          return { outcome: "merged" };
+        },
+        ensureEpicPullRequest: async () => {
+          calls.push("ensureEpicPullRequest");
+          return { number: 7, url: "https://github.com/example-org/example-api/pull/7" };
+        },
+        postPullRequestNotice: unexpectedCall("postPullRequestNotice"),
+        editPullRequestNotice: unexpectedCall("editPullRequestNotice"),
+        postDispatchFailed: unexpectedCall("postDispatchFailed"),
+        moveStoryToTodo: unexpectedCall("moveStoryToTodo"),
+      },
+    });
+
+    await worker.runUntil(async () => {
+      const result = await client.workflow.execute(dispatchStoryWorkflow, {
+        workflowId: "test-merge-refused-1",
+        taskQueue: taskQueue,
+        args: [baseInput],
+      });
+      expect(result).toMatchObject({ outcome: "complete", pullRequest: { merged: true }, epicPullRequest: { number: 7, url: "https://github.com/example-org/example-api/pull/7" } });
+    });
+
+    expect(calls).toEqual(["mergeStoryPullRequest", "requestPullRequestReviewer", "awaitPullRequestOutcome", "ensureEpicPullRequest"]);
   }, WORKFLOW_TEST_TIMEOUT_MS);
 
   it("posts a dispatch-failed comment naming the real cause, moves the story back to Todo, then still fails the workflow (never silent)", async () => {

@@ -32,12 +32,17 @@ vehicle for dispatch, so keep them light.
 1. **The API map.** A document attached to the epic, regenerated in place on
    every pass, in the form `api-map-writing` defines.
 2. **Stories**, per `story-contract`.
-   - **One story by default.** It covers the whole claim.
-   - **Split only when** the epic will not fit one specialist run. Then slice
-     along the demo path, not per surface. One story may carry several
+   - **Slice the epic into as many stories as it needs**, each one a
+     contiguous piece of the demo path that fits one specialist run. An epic
+     usually covers several demo steps, so expect several stories.
+   - Slice along the demo path, not per surface. One story may carry several
      `surface:` labels.
+   - **Chain them.** Each story lists the story before it under `Blocking
+     dependencies`, unless it truly doesn't need it, so they build in order
+     on the epic branch.
    - Stories are proposed in the thread first and created only after
-     approval, as children of the epic.
+     approval, as children of the epic. One approval covers the map and
+     every story.
 3. **Questions for the architect**, in prose in the epic's thread, when the
    map or the stories cannot be drawn from the inputs.
 4. **Registry corrections.** If the architect's answers show a surface record
@@ -53,9 +58,9 @@ Determine your state from the thread every time.
   the questions.
 - **Propose.**
   - Write or regenerate the map.
-  - Post the proposed stories in the thread: one line each on what it builds
-    and which demo steps it makes watchable. If there is more than one, say in
-    one line why the epic will not fit one run.
+  - Post the proposed stories in the thread, in build order: one line each on
+    what it builds, which demo steps it makes watchable, and which story it
+    waits on.
   - Apply `spec:awaiting-architect` and ask the architect to approve the map
     and the stories in prose.
 - **Resolved.** The architect has approved in the thread; silence is not
@@ -70,6 +75,9 @@ Determine your state from the thread every time.
     demo-path order, each with its status.
   - A story is ready to dispatch as soon as it exists. A human dispatches it
     by moving it from `Todo` to `In Progress`.
+  - Each story's PR merges into the epic branch automatically when the
+    specialist opens it, and the epic branch's PR into the base branch opens
+    with the first merge. The human reviews and tests that one epic PR.
 
 If the architect approves the map but not the stories, or the other way round,
 regenerate what they asked to change and propose again. Resolve only when both

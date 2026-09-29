@@ -14,7 +14,8 @@ on the epic.
 ## When
 
 Apply the gate after every story under the epic has merged into the epic
-branch.
+branch. The demo runs on the epic branch, the head of the epic's open PR into
+the base branch. Merging that PR is the step after the demo, not before it.
 
 ## What the human is shown
 
