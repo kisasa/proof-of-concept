@@ -698,6 +698,22 @@ branch protection rule are the expected causes.
 
 ---
 
+## 2026-09-29 — E2 confirmed in production
+
+### E2a. Auto-merge and the epic PR work on a live dispatch — recorded
+
+On the AWS deployment of `975ddb2`, a Durables story was dispatched and
+behaved as E2 describes:
+
+- the specialist's PR merged into its epic branch on its own
+- the epic branch's PR into the base branch opened automatically
+
+The owner reported that everything worked. E2 was settled as a decision; this
+records that it has held on real work. It closes the post-deploy item in PR
+#2's test plan.
+
+---
+
 ## Open items
 
 From `bootstrap.md` Section 8:
