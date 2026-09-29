@@ -92,6 +92,8 @@ An epic is a step, or a small group of steps, of the demo path, phrased as a
 claim that can be watched working. It closes at the demo gate, not at a test
 gate.
 
+Superseded by 2026-09-29 — TE2.
+
 ### F6. Story = optional, and vertical — settled
 
 A story exists only when an epic will not fit in one specialist run. Stories
@@ -101,6 +103,8 @@ code, so ItP's reason for per-surface stories mostly disappears.
 
 See 2026-09-24 — B9 for how "the epic dispatches directly" is expressed under
 the current dispatcher.
+
+Superseded by 2026-09-29 — TE2.
 
 ### F7. The shortcut ledger — settled
 
@@ -446,6 +450,8 @@ cheaper model Decompose had.
 
 F6 still holds, and one story per epic is its default case.
 
+Its one-story-per-epic default is superseded by 2026-09-29 — TE2.
+
 ---
 
 ## 2026-09-25 — POC team labels; no story sizing
@@ -613,6 +619,85 @@ These separation requirements apply to the deploy (F2, F12):
 
 ---
 
+## 2026-09-29 — Trial evidence from Durables; few epics, auto-merged stories
+
+### TE1. Trial evidence: the second PoC ("Durables") — recorded
+
+The owner's feedback from running the PoC pipeline on the POC team's project
+"Durables — Temporal activity registry". This is the trial evidence the Open
+items call for.
+
+- **The shape it produced.** Intake cut the demo path into 8 epics, and
+  Specification gave each exactly one story.
+  Every demo step paid separately for:
+  - a move to Evaluation
+  - a map-and-story proposal, and its approval
+  - an epic branch
+  - a story PR into that branch, and then the epic's own merge
+- **What was ceremony.**
+  - **Epic-per-step:** "the brief got broken up into many epics with 1 story
+    each."
+  - **Per-story review:** "I'm not really testing anything until the end
+    anyway."
+  - **The second branch hop:** "an added layer of branching that isn't really
+    necessary."
+- **What would have been faster.** One or two epics, then working through
+  their stories.
+- **What stays.** Dispatching each story by hand. The owner wants to choose
+  when the Claude API costs are incurred.
+
+### TE2. Few epics, many stories — proposal
+
+- **Intake** cuts one epic for the whole demo path by default. It splits
+  into two, or at most three, only at a natural checkpoint where the demo so
+  far is worth watching on its own. It never cuts one epic per step. This is
+  in `epic-writing` and `intake-agent`.
+- **Specification** slices each epic into as many stories as it needs, each a
+  contiguous piece of the demo path that fits one specialist run. Each story
+  lists the one before it under `Blocking dependencies`, so they build in
+  order. One approval covers the map and every story. This is in
+  `specification-agent` and `story-contract`.
+
+This supersedes F5, F6, and S1's one-story default. It is a proposal because
+it is agent-definition content.
+
+### E2. Story PRs merge into the epic branch automatically; the epic PR opens itself — settled
+
+This was the owner's decision.
+
+**The new path.** In `dispatchStoryWorkflow`, once the specialist's PR
+exists:
+
+- `mergeStoryPullRequest` merges it into the epic branch. It uses a merge
+  commit, not a squash, so the story branch stays an ancestor of the epic
+  branch and a later re-dispatch's abandoned-work check reads zero.
+- `ensureEpicPullRequest` then opens the epic branch's PR into the surface's
+  base branch, the registry `ref` (for example `p-o-c` for Durables), unless
+  one is open. Later stories add commits to it.
+- That epic PR is the one place a person reviews, tests, and merges.
+
+**The fallback.** If GitHub refuses the merge, the workflow says why on the
+PR and falls back to the previous path: request the reviewer-of-record,
+watch the PR, and run revision rounds. A conflict with a sibling story or a
+branch protection rule are the expected causes.
+
+**Other notes.**
+
+- **Dispatch stays manual** (TE1).
+- **The specialist draft** now says its PR merges without review as soon as
+  it is opened. So it opens the PR only when the story is complete and the
+  surface's existing tests still pass.
+- **Remaining human gates:**
+  - the brief
+  - the spec approval
+  - dispatching each story
+  - the epic PR
+  - the verdict
+- **No Temporal versioning.** The owner deploys the new worker once no
+  dispatch is in flight.
+
+---
+
 ## Open items
 
 From `bootstrap.md` Section 8:
@@ -620,6 +705,7 @@ From `bootstrap.md` Section 8:
 - **Trial evidence.** Which ItP gates were ceremony on the PoC trial, and
   which caught real problems. This decides which gate logic is removed from
   the copied plumbing. Nothing is removed until it is written down.
+  Partly recorded 2026-09-29 — see TE1.
 - **Temporal's role.** With fewer long human waits, how much durable
   orchestration a PoC needs. Keep it until evidence says otherwise.
 - **Executable demo script.** Whether the Playwright happy path is required,

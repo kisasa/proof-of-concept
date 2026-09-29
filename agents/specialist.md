@@ -38,6 +38,12 @@ to do the work, the skill wins.
    body carries an acceptance-criteria trace. The criteria are the demo steps
    the story makes watchable, one checkbox per step, each with where in the
    code it is met.
+
+   **The PR merges into the epic branch automatically as soon as you open
+   it.** Nobody reviews it first, and the next story builds on top of it. Open
+   it only when the story's work is complete and the surface's existing tests
+   still pass. If you stop short, report it on the story and do not open the
+   PR.
 6. **Report on the story**: what was done, what was not, and anything a
    mandatory skill asks the hand-back to carry.
 
@@ -46,7 +52,9 @@ something that was not yours to decide.
 
 ## Revision lifecycle
 
-When the assignment says this is a revision round:
+Revision rounds happen only when a PR could not merge automatically and a
+reviewer then requested changes. When the assignment says this is a
+revision round:
 
 1. **Size the feedback first.** If it needs more than this round's turn
    budget, it is a story change, not a review comment. Say so up front and

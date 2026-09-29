@@ -21,6 +21,7 @@ import { createEditPullRequestNoticeActivity, createPostPullRequestNoticeActivit
 import { createRequestPullRequestReviewerActivity } from "./activities/request-pull-request-reviewer.js";
 import { createResolveSurfacesActivity } from "./activities/resolve-surfaces.js";
 import { createPostSpecialistStartedActivity, createDeleteSpecialistProgressActivity } from "./activities/specialist-progress.js";
+import { createEnsureEpicPullRequestActivity, createMergeStoryPullRequestActivity } from "./activities/story-merge.js";
 import { createLogger } from "./logger.js";
 import { loadLocalEnvFile } from "./local-env-file.js";
 import { connectToTemporal } from "./temporal-connection.js";
@@ -78,6 +79,8 @@ async function main(): Promise<void> {
       awaitPullRequestOutcome: createAwaitPullRequestOutcomeActivity(config),
       postDispatchFailed: createPostDispatchFailedActivity(config),
       moveStoryToTodo: createMoveStoryToTodoActivity(config),
+      mergeStoryPullRequest: createMergeStoryPullRequestActivity(config),
+      ensureEpicPullRequest: createEnsureEpicPullRequestActivity(config),
     },
   });
 

@@ -49,7 +49,8 @@ Every story description has one, even when nothing blocks it.
       - PROJ-42 — the demo account seed exists
 
 - **Nothing blocking:** write `No blocking dependencies.` under the heading.
-  This is the usual case for a one-story epic.
+  That is the case for an epic's first story. Each later story usually lists
+  the one before it, so the stories build in order.
 - **End:** the section ends at the next heading.
 - **Failures:** a missing heading fails dispatch. A blocker that is not done
   sends the story back to `Todo` with a comment.

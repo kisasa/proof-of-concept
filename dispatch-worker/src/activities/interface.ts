@@ -32,5 +32,9 @@ export interface DispatchActivities {
   postPullRequestNotice(repoBase: RepoBase, prNumber: number, body: string): Promise<number | null>;
   editPullRequestNotice(repoBase: RepoBase, commentId: number, body: string): Promise<void>;
   postDispatchFailed(storyId: string, message: string): Promise<void>;
+  /** Merges the story's PR into its epic branch; false, after a note on the PR, when GitHub refuses. */
+  mergeStoryPullRequest(repoBase: RepoBase, prNumber: number): Promise<boolean>;
+  /** Opens the epic branch's PR into the base branch unless one is open; null when it cannot. */
+  ensureEpicPullRequest(repoBase: RepoBase, epicId: string, epicBranch: string): Promise<PullRequestReference | null>;
   moveStoryToTodo(storyId: string): Promise<void>;
 }
